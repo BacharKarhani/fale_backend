@@ -16,3 +16,20 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+use App\Http\Controllers\Api\Admin\HomePage\BannerController;
+
+// Public routes
+Route::get('/banners', [BannerController::class, 'index']);
+Route::get('/banners/{banner}', [BannerController::class, 'show']);
+
+
+use App\Http\Middleware\IsAdmin;
+
+Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
+    Route::post('/banners', [BannerController::class, 'store']);
+    Route::put('/banners/{banner}', [BannerController::class, 'update']);
+    Route::delete('/banners/{banner}', [BannerController::class, 'destroy']);
+});
+
+
