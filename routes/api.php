@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\Homepage\TeamMemberController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Admin\HomePage\BannerController;
@@ -31,7 +32,7 @@ Route::get('/sliding-texts', [SlidingTextController::class, 'index']);
 Route::get('/buy-ticket', [BuyTicketContentController::class, 'index']);
 Route::get('/event-content', [EventContentController::class, 'index']);
 Route::get('/event-direction', [EventDirectionController::class, 'index']);
-
+Route::get('/team-members', [TeamMemberController::class, 'index']);
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
 
@@ -49,7 +50,7 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/sliding-texts', [SlidingTextController::class, 'store']);
     Route::put('/sliding-texts/{sliding_text}', [SlidingTextController::class, 'update']);
     Route::delete('/sliding-texts/{sliding_text}', [SlidingTextController::class, 'destroy']);
-    
+
     // 🔒 Buy Ticket Content APIs
     Route::post('/buy-ticket', [BuyTicketContentController::class, 'store']);
     Route::put('/buy-ticket/{id}', [BuyTicketContentController::class, 'update']);
@@ -64,4 +65,8 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/event-direction', [EventDirectionController::class, 'store']);
     Route::put('/event-direction/{id}', [EventDirectionController::class, 'update']);
     Route::delete('/event-direction/{id}', [EventDirectionController::class, 'destroy']);
+
+    Route::post('/team-members', [TeamMemberController::class, 'store']);
+    Route::put('/team-members/{id}', [TeamMemberController::class, 'update']);
+    Route::delete('/team-members/{id}', [TeamMemberController::class, 'destroy']);
 });
