@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\Admin\HomePage\BannerController;
 use App\Http\Controllers\Api\Admin\HomePage\ServiceController;
 use App\Http\Controllers\Api\Admin\HomePage\BuyTicketContentController;
 use App\Http\Controllers\Api\Admin\HomePage\SlidingTextController;
+use App\Http\Controllers\Api\Admin\HomePage\EventContentController;
+use App\Http\Controllers\Api\Admin\HomePage\EventDirectionController;
+
 use App\Http\Middleware\IsAdmin;
 
 // 🟢 Public Auth APIs
@@ -26,6 +29,8 @@ Route::get('/services/{service}', [ServiceController::class, 'show']);
 
 Route::get('/sliding-texts', [SlidingTextController::class, 'index']);
 Route::get('/buy-ticket', [BuyTicketContentController::class, 'index']);
+Route::get('/event-content', [EventContentController::class, 'index']);
+Route::get('/event-direction', [EventDirectionController::class, 'index']);
 
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
@@ -44,7 +49,19 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/sliding-texts', [SlidingTextController::class, 'store']);
     Route::put('/sliding-texts/{sliding_text}', [SlidingTextController::class, 'update']);
     Route::delete('/sliding-texts/{sliding_text}', [SlidingTextController::class, 'destroy']);
-
-    // 🔒 BuyTicketContent APIs
+    
+    // 🔒 Buy Ticket Content APIs
+    Route::post('/buy-ticket', [BuyTicketContentController::class, 'store']);
     Route::put('/buy-ticket/{id}', [BuyTicketContentController::class, 'update']);
+    Route::delete('/buy-ticket/{id}', [BuyTicketContentController::class, 'destroy']);
+
+    // 🔒 EventContent APIs
+    Route::post('/event-content', [EventContentController::class, 'store']);
+    Route::put('/event-content/{id}', [EventContentController::class, 'update']);
+    Route::delete('/event-content/{id}', [EventContentController::class, 'destroy']);
+
+    // 🔒 EventDirection APIs
+    Route::post('/event-direction', [EventDirectionController::class, 'store']);
+    Route::put('/event-direction/{id}', [EventDirectionController::class, 'update']);
+    Route::delete('/event-direction/{id}', [EventDirectionController::class, 'destroy']);
 });
