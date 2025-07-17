@@ -1,14 +1,14 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Admin\HomePage\BannerController;
-use App\Http\Controllers\Api\Admin\Homepage\ServiceController;
+use App\Http\Controllers\Api\Admin\HomePage\ServiceController;
+use App\Http\Controllers\Api\Admin\HomePage\BuyTicketContentController;
+use App\Http\Controllers\Api\Admin\HomePage\SlidingTextController;
 use App\Http\Middleware\IsAdmin;
 
-// 🟢 Auth APIs
+// 🟢 Public Auth APIs
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -17,13 +17,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-// 🟢 Public Banner APIs
+// 🟢 Public APIs
 Route::get('/banners', [BannerController::class, 'index']);
 Route::get('/banners/{banner}', [BannerController::class, 'show']);
 
-// 🟢 Public Service APIs
 Route::get('/services', [ServiceController::class, 'index']);
 Route::get('/services/{service}', [ServiceController::class, 'show']);
+
+Route::get('/sliding-texts', [SlidingTextController::class, 'index']);
+Route::get('/buy-ticket', [BuyTicketContentController::class, 'index']);
 
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
@@ -37,4 +39,12 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/services', [ServiceController::class, 'store']);
     Route::put('/services/{service}', [ServiceController::class, 'update']);
     Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
+
+    // 🔒 Sliding Text APIs
+    Route::post('/sliding-texts', [SlidingTextController::class, 'store']);
+    Route::put('/sliding-texts/{sliding_text}', [SlidingTextController::class, 'update']);
+    Route::delete('/sliding-texts/{sliding_text}', [SlidingTextController::class, 'destroy']);
+
+    // 🔒 BuyTicketContent APIs
+    Route::put('/buy-ticket/{id}', [BuyTicketContentController::class, 'update']);
 });
