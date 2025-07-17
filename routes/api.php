@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\HomePage\BuyTicketContentController;
 use App\Http\Controllers\Api\Admin\HomePage\SlidingTextController;
 use App\Http\Controllers\Api\Admin\HomePage\EventContentController;
 use App\Http\Controllers\Api\Admin\HomePage\EventDirectionController;
+use App\Http\Controllers\Api\Admin\Homepage\BlogController;
 
 use App\Http\Middleware\IsAdmin;
 
@@ -33,6 +34,10 @@ Route::get('/buy-ticket', [BuyTicketContentController::class, 'index']);
 Route::get('/event-content', [EventContentController::class, 'index']);
 Route::get('/event-direction', [EventDirectionController::class, 'index']);
 Route::get('/team-members', [TeamMemberController::class, 'index']);
+Route::get('/team-members/{id}', [TeamMemberController::class, 'show']); // ✅ Add show route
+Route::get('/blogs', [BlogController::class, 'index']);
+Route::get('/blogs/{id}', [BlogController::class, 'show']);
+
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
 
@@ -69,4 +74,8 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/team-members', [TeamMemberController::class, 'store']);
     Route::put('/team-members/{id}', [TeamMemberController::class, 'update']);
     Route::delete('/team-members/{id}', [TeamMemberController::class, 'destroy']);
+
+    Route::post('/blogs', [BlogController::class, 'store']);
+    Route::put('/blogs/{id}', [BlogController::class, 'update']);
+    Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
 });

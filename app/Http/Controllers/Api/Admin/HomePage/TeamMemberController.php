@@ -18,6 +18,15 @@ class TeamMemberController extends Controller
         ]);
     }
 
+        public function show($id)
+    {
+        $member = TeamMember::find($id);
+        if (!$member) {
+            return response()->json(['success' => false, 'message' => 'Member not found'], 404);
+        }
+        return response()->json(['success' => true, 'data' => $member]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -40,14 +49,6 @@ class TeamMemberController extends Controller
         ], 201);
     }
 
-    public function show($id)
-    {
-        $member = TeamMember::find($id);
-        if (!$member) {
-            return response()->json(['success' => false, 'message' => 'Member not found'], 404);
-        }
-        return response()->json(['success' => true, 'data' => $member]);
-    }
 
     public function update(Request $request, $id)
     {
