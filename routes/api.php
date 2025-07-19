@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Admin\HomePage\EventContentController;
 use App\Http\Controllers\Api\Admin\HomePage\EventDirectionController;
 use App\Http\Controllers\Api\Admin\Homepage\BlogController;
 use App\Http\Controllers\Api\Admin\FAQ\FaqController;
+use App\Http\Controllers\Api\Admin\Contact\ContactController;
 
 use App\Http\Middleware\IsAdmin;
 
@@ -39,7 +40,11 @@ Route::get('/team-members/{id}', [TeamMemberController::class, 'show']); // ✅ 
 Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{id}', [BlogController::class, 'show']);
 Route::get('/faqs', [FaqController::class, 'index']);
-
+Route::get('/contact-info', [ContactController::class, 'getContactInfo']);
+Route::post('/contact-submit', [ContactController::class, 'saveContactForm']);
+// Public APIs
+Route::get('/contact-info', [ContactController::class, 'getContactInfo']);
+Route::post('/contact-submit', [ContactController::class, 'saveContactForm']);
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
 
@@ -84,4 +89,16 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/faqs', [FaqController::class, 'store']);     // Add
     Route::put('/faqs/{faq}', [FaqController::class, 'update']); // Edit
     Route::delete('/faqs/{faq}', [FaqController::class, 'destroy']); // Delete
+
+    // 🔒 Contact APIs
+    Route::get('/admin/received-emails', [ContactController::class, 'getAllReceivedEmails']);
+    Route::delete('/admin/received-emails/{id}', [ContactController::class, 'deleteReceivedEmail']);
+    Route::post('/admin/contact-info', [ContactController::class, 'createContactInfo']);
+    Route::put('/admin/contact-info/{id}', [ContactController::class, 'updateContactInfo']);
+    Route::delete('/admin/contact-info/{id}', [ContactController::class, 'deleteContactInfo']);
+
 });
+
+
+
+
