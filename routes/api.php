@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\HomePage\SlidingTextController;
 use App\Http\Controllers\Api\Admin\HomePage\EventContentController;
 use App\Http\Controllers\Api\Admin\HomePage\EventDirectionController;
 use App\Http\Controllers\Api\Admin\Homepage\BlogController;
+use App\Http\Controllers\Api\Admin\FAQ\FaqController;
 
 use App\Http\Middleware\IsAdmin;
 
@@ -37,6 +38,7 @@ Route::get('/team-members', [TeamMemberController::class, 'index']);
 Route::get('/team-members/{id}', [TeamMemberController::class, 'show']); // ✅ Add show route
 Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{id}', [BlogController::class, 'show']);
+Route::get('/faqs', [FaqController::class, 'index']);
 
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
@@ -70,12 +72,16 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/event-direction', [EventDirectionController::class, 'store']);
     Route::put('/event-direction/{id}', [EventDirectionController::class, 'update']);
     Route::delete('/event-direction/{id}', [EventDirectionController::class, 'destroy']);
-
+    // 🔒 Team Member APIs
     Route::post('/team-members', [TeamMemberController::class, 'store']);
     Route::put('/team-members/{id}', [TeamMemberController::class, 'update']);
     Route::delete('/team-members/{id}', [TeamMemberController::class, 'destroy']);
-
+    // 🔒 Blog APIs
     Route::post('/blogs', [BlogController::class, 'store']);
     Route::put('/blogs/{id}', [BlogController::class, 'update']);
     Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
+    // 🔒 FAQ APIs
+    Route::post('/faqs', [FaqController::class, 'store']);     // Add
+    Route::put('/faqs/{faq}', [FaqController::class, 'update']); // Edit
+    Route::delete('/faqs/{faq}', [FaqController::class, 'destroy']); // Delete
 });
