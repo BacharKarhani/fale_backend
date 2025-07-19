@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\Admin\HomePage\EventDirectionController;
 use App\Http\Controllers\Api\Admin\Homepage\BlogController;
 use App\Http\Controllers\Api\Admin\FAQ\FaqController;
 use App\Http\Controllers\Api\Admin\Contact\ContactController;
-
+use App\Http\Controllers\Api\Admin\Subscription\SubscriptionController;
 use App\Http\Middleware\IsAdmin;
 
 // 🟢 Public Auth APIs
@@ -42,9 +42,9 @@ Route::get('/blogs/{id}', [BlogController::class, 'show']);
 Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/contact-info', [ContactController::class, 'getContactInfo']);
 Route::post('/contact-submit', [ContactController::class, 'saveContactForm']);
-// Public APIs
-Route::get('/contact-info', [ContactController::class, 'getContactInfo']);
-Route::post('/contact-submit', [ContactController::class, 'saveContactForm']);
+Route::post('/subscribe', [SubscriptionController::class, 'store']);
+
+
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
 
@@ -96,6 +96,7 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/admin/contact-info', [ContactController::class, 'createContactInfo']);
     Route::put('/admin/contact-info/{id}', [ContactController::class, 'updateContactInfo']);
     Route::delete('/admin/contact-info/{id}', [ContactController::class, 'deleteContactInfo']);
+    Route::get('/admin/subscriptions', [SubscriptionController::class, 'index']);
 
 });
 
