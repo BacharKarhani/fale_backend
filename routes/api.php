@@ -34,6 +34,7 @@ Route::get('/services', [ServiceController::class, 'index']);
 Route::get('/services/{service}', [ServiceController::class, 'show']);
 
 Route::get('/sliding-texts', [SlidingTextController::class, 'index']);
+Route::get('/sliding-texts/{id}', [SlidingTextController::class, 'show']);
 Route::get('/buy-ticket', [BuyTicketContentController::class, 'index']);
 Route::get('/event-content', [EventContentController::class, 'index']);
 Route::get('/event-direction', [EventDirectionController::class, 'index']);
@@ -94,6 +95,7 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/faqs', [FaqController::class, 'store']);     // Add
     Route::put('/faqs/{faq}', [FaqController::class, 'update']); // Edit
     Route::delete('/faqs/{faq}', [FaqController::class, 'destroy']); // Delete
+    Route::get('/faqs/{faq}', [FaqController::class, 'show']);
 
     // 🔒 Contact APIs
     Route::get('/admin/received-emails', [ContactController::class, 'getAllReceivedEmails']);
@@ -104,10 +106,10 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::get('/admin/subscriptions', [SubscriptionController::class, 'index']);
     // 🔒 Day APIs
 // 🔒 Day APIs
-Route::get('/days', [DayController::class, 'index']);        // List all days
-Route::post('/days', [DayController::class, 'store']);       // Create day
-Route::match(['put', 'patch'], '/days/{id}', [DayController::class, 'update']); // ✅ Accept both PUT & PATCH
-Route::delete('/days/{id}', [DayController::class, 'destroy']); // Delete day
+    Route::get('/days', [DayController::class, 'index']);        // List all days
+    Route::post('/days', [DayController::class, 'store']);       // Create day
+    Route::match(['put', 'patch'], '/days/{id}', [DayController::class, 'update']); // ✅ Accept both PUT & PATCH
+    Route::delete('/days/{id}', [DayController::class, 'destroy']); // Delete day
 
 });
 

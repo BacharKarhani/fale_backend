@@ -20,6 +20,14 @@ class FaqController extends Controller
         ]);
     }
 
+    public function show(Faq $faq)
+{
+    return response()->json([
+        'success' => true,
+        'data' => $faq
+    ]);
+}
+
     /**
      * Create a new FAQ (Admin)
      * POST /api/admin/faqs

@@ -32,6 +32,33 @@ class SlidingTextController extends Controller
         }
     }
 
+    // ✅ Get a single sliding text
+public function show($id)
+{
+    try {
+        $slidingText = SlidingText::findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $slidingText
+        ], 200);
+
+    } catch (ModelNotFoundException $mnfe) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Sliding text not found.'
+        ], 404);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to fetch sliding text.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
+
+
     // ✅ Store new sliding text
     public function store(Request $request)
     {
