@@ -49,75 +49,86 @@ class BannerController extends Controller
         }
     }
 
-    public function store(Request $request)
-    {
-        try {
-            $request->validate([
-                'title' => 'required|string|max:255',
-                'image' => 'required|string', // Expecting image path
-                'subtitle' => 'nullable|string|max:255',
-                'description' => 'nullable|string',
-                'location' => 'nullable|string|max:255',
-                'date' => 'nullable|string|max:255',
-            ]);
+public function store(Request $request)
+{
+    try {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'subtitle' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'date' => 'nullable|string|max:255',
+        ]);
 
-            $banner = Banner::create([
-                'title' => $request->title,
-                'subtitle' => $request->subtitle,
-                'description' => $request->description,
-                'image' => $request->image,
-                'location' => $request->location,
-                'date' => $request->date,
-            ]);
+        // Handle image upload
+        $imagePath = $request->file('image')->store('banners', 'public');
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Banner created successfully',
-                'data' => $banner
-            ], 201);
+        $banner = Banner::create([
+            'title' => $request->title,
+            'subtitle' => $request->subtitle,
+            'description' => $request->description,
+            'image' => $imagePath,
+            'location' => $request->location,
+            'date' => $request->date,
+        ]);
 
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
+        return response()->json([
+            'success' => true,
+            'message' => 'Banner created successfully',
+            'data' => $banner
+        ], 201);
 
-        } catch (QueryException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Database error',
-                'error' => $e->getMessage()
-            ], 500);
+    } catch (ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation error',
+            'errors' => $e->errors()
+        ], 422);
 
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Server error',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+    } catch (QueryException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Database error',
+            'error' => $e->getMessage()
+        ], 500);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Server error',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
-    public function update(Request $request, Banner $banner)
-    {
-        try {
-            $request->validate([
-                'title' => 'sometimes|required|string|max:255',
-                'image' => 'sometimes|string',
-                'subtitle' => 'nullable|string|max:255',
-                'description' => 'nullable|string',
-                'location' => 'nullable|string|max:255',
-                'date' => 'nullable|string|max:255',
-            ]);
+public function update(Request $request, Banner $banner)
+{
+    try {
+        $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'subtitle' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'location' => 'nullable|string|max:255',
+            'date' => 'nullable|string|max:255',
+        ]);
 
-            $banner->update($request->all());
+        $data = $request->all();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Banner updated successfully',
-                'data' => $banner
-            ], 200);
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('banners', 'public');
+        }
+
+        $banner->update($data);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Banner updated successfully',
+            'data' => $banner
+        ], 200);
+
+    // ... (rest of your error handling)
 
         } catch (ValidationException $e) {
             return response()->json([
