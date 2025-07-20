@@ -46,6 +46,7 @@ Route::get('/contact-info', [ContactController::class, 'getContactInfo']);
 Route::post('/contact-submit', [ContactController::class, 'saveContactForm']);
 Route::post('/subscribe', [SubscriptionController::class, 'store']);
 Route::get('/event-schedule', [EventScheduleController::class, 'index']);
+Route::get('/event-schedule/{id}', [EventScheduleController::class, 'show']); // 🟢 Single day by ID
 
 
 
