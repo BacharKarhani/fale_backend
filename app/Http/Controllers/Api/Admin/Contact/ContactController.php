@@ -12,27 +12,51 @@ class ContactController extends Controller
     /**
      * 🔓 Public API: Get Contact Information
      */
-    public function getContactInfo()
-    {
-        $contact = ContactSetting::first();
+public function getContactInfo()
+{
+    $contact = ContactSetting::first();
 
-        if (!$contact) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Contact information not found.'
-            ], 404);
-        }
-
+    if (!$contact) {
         return response()->json([
-            'success' => true,
-            'data' => [
-                'location' => $contact->location,
-                'emails' => json_decode($contact->emails),
-                'phones' => json_decode($contact->phones),
-                'services' => json_decode($contact->services)
-            ]
-        ]);
+            'success' => false,
+            'message' => 'Contact information not found.'
+        ], 404);
     }
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'location' => $contact->location,
+            'emails' => json_decode($contact->emails),
+            'phones' => json_decode($contact->phones),
+            'services' => json_decode($contact->services)
+        ]
+    ]);
+}
+
+public function getAdminContactInfo()
+{
+    $contact = ContactSetting::first();
+
+    if (!$contact) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Contact information not found.'
+        ], 404);
+    }
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'id' => $contact->id, // 👈 Send ID for React PUT/DELETE
+            'location' => $contact->location,
+            'emails' => json_decode($contact->emails),
+            'phones' => json_decode($contact->phones),
+            'services' => json_decode($contact->services)
+        ]
+    ]);
+}
+
 
     /**
      * 🔓 Public API: Save Contact Form Submission

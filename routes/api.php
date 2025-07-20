@@ -104,6 +104,8 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::put('/admin/contact-info/{id}', [ContactController::class, 'updateContactInfo']);
     Route::delete('/admin/contact-info/{id}', [ContactController::class, 'deleteContactInfo']);
     Route::get('/admin/subscriptions', [SubscriptionController::class, 'index']);
+    Route::get('/admin/contact-info', [ContactController::class, 'getAdminContactInfo']);
+
     // 🔒 Day APIs
 // 🔒 Day APIs
     Route::get('/days', [DayController::class, 'index']);        // List all days
