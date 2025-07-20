@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\Admin\Homepage\BlogController;
 use App\Http\Controllers\Api\Admin\FAQ\FaqController;
 use App\Http\Controllers\Api\Admin\Contact\ContactController;
 use App\Http\Controllers\Api\Admin\Subscription\SubscriptionController;
+use App\Http\Controllers\Api\Admin\Homepage\DayController;
+use App\Http\Controllers\Api\Admin\Homepage\EventScheduleController;
 use App\Http\Middleware\IsAdmin;
 
 // 🟢 Public Auth APIs
@@ -43,6 +45,8 @@ Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/contact-info', [ContactController::class, 'getContactInfo']);
 Route::post('/contact-submit', [ContactController::class, 'saveContactForm']);
 Route::post('/subscribe', [SubscriptionController::class, 'store']);
+Route::get('/event-schedule', [EventScheduleController::class, 'index']);
+
 
 
 // 🔒 Protected APIs (Admins only)
@@ -97,6 +101,12 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::put('/admin/contact-info/{id}', [ContactController::class, 'updateContactInfo']);
     Route::delete('/admin/contact-info/{id}', [ContactController::class, 'deleteContactInfo']);
     Route::get('/admin/subscriptions', [SubscriptionController::class, 'index']);
+    // 🔒 Day APIs
+// 🔒 Day APIs
+Route::get('/days', [DayController::class, 'index']);        // List all days
+Route::post('/days', [DayController::class, 'store']);       // Create day
+Route::match(['put', 'patch'], '/days/{id}', [DayController::class, 'update']); // ✅ Accept both PUT & PATCH
+Route::delete('/days/{id}', [DayController::class, 'destroy']); // Delete day
 
 });
 
