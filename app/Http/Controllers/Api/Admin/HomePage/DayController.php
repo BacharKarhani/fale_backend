@@ -20,6 +20,23 @@ class DayController extends Controller
         ]);
     }
 
+        // 🟢 Get Single Day by ID
+    public function show($id)
+    {
+        $day = Day::with('events')->find($id);
+
+        if (!$day) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Day not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $day
+        ]);
+    }
     // 🟢 Create Day
     public function store(Request $request)
     {

@@ -21,6 +21,22 @@ class BuyTicketContentController extends Controller
     }
 
 
+     public function show($id)
+    {
+        $content = BuyTicketContent::find($id);
+
+        if (!$content) {
+            return response()->json([
+                'success' => false,
+                'message' => 'BuyTicket content not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $content,
+        ]);
+    }
     // 🟢 PUT: Update BuyTicket content (admin only)
     public function update(Request $request, $id)
     {

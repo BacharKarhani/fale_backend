@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class EventContentController extends Controller
 {
-    // 🟢 Public API
+    // 🟢 GET: Fetch first EventContent (public)
     public function index()
     {
         $content = EventContent::first();
@@ -20,7 +20,25 @@ class EventContentController extends Controller
         ]);
     }
 
-    // 🔐 Admin Create
+    // 🟢 GET: Fetch EventContent by ID (public)
+    public function show($id)
+    {
+        $content = EventContent::find($id);
+
+        if (!$content) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Event content not found.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $content
+        ]);
+    }
+
+    // 🔐 POST: Create EventContent (admin only)
     public function store(Request $request)
     {
         $request->validate([
@@ -61,7 +79,7 @@ class EventContentController extends Controller
         ]);
     }
 
-    // 🔐 Admin Update
+    // 🔐 PUT: Update EventContent (admin only)
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -98,7 +116,7 @@ class EventContentController extends Controller
         ]);
     }
 
-    // 🔐 Admin Delete
+    // 🔐 DELETE: Delete EventContent (admin only)
     public function destroy($id)
     {
         $content = EventContent::findOrFail($id);

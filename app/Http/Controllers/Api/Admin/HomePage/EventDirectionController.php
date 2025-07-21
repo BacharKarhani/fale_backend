@@ -26,6 +26,27 @@ class EventDirectionController extends Controller
         ]);
     }
 
+     // 🟢 GET by ID (public)
+    public function show($id)
+    {
+        $direction = EventDirection::find($id);
+
+        if (!$direction) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Event Direction not found.',
+            ], 404);
+        }
+
+        $direction->call_icon_url = $direction->call_icon
+            ? asset('storage/' . $direction->call_icon)
+            : null;
+
+        return response()->json([
+            'success' => true,
+            'data' => $direction,
+        ]);
+    }
     // 🔒 POST: Create (Admin only)
     public function store(Request $request)
     {

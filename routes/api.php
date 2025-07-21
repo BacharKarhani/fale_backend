@@ -73,16 +73,19 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/buy-ticket', [BuyTicketContentController::class, 'store']);
     Route::put('/buy-ticket/{id}', [BuyTicketContentController::class, 'update']);
     Route::delete('/buy-ticket/{id}', [BuyTicketContentController::class, 'destroy']);
-
+    Route::get('/buy-ticket/{id}', [BuyTicketContentController::class, 'show']);
     // 🔒 EventContent APIs
     Route::post('/event-content', [EventContentController::class, 'store']);
     Route::put('/event-content/{id}', [EventContentController::class, 'update']);
     Route::delete('/event-content/{id}', [EventContentController::class, 'destroy']);
+    Route::get('event-content/{id}', [EventContentController::class, 'show']);
 
     // 🔒 EventDirection APIs
     Route::post('/event-direction', [EventDirectionController::class, 'store']);
     Route::put('/event-direction/{id}', [EventDirectionController::class, 'update']);
     Route::delete('/event-direction/{id}', [EventDirectionController::class, 'destroy']);
+    Route::get('event-direction/{id}', [EventDirectionController::class, 'show']);
+
     // 🔒 Team Member APIs
     Route::post('/team-members', [TeamMemberController::class, 'store']);
     Route::put('/team-members/{id}', [TeamMemberController::class, 'update']);
@@ -112,6 +115,7 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/days', [DayController::class, 'store']);       // Create day
     Route::match(['put', 'patch'], '/days/{id}', [DayController::class, 'update']); // ✅ Accept both PUT & PATCH
     Route::delete('/days/{id}', [DayController::class, 'destroy']); // Delete day
+    Route::get('days/{id}', [DayController::class, 'show']);
 
 });
 
