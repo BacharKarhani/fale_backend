@@ -27,6 +27,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
+// 🧪 Test API Endpoint
+Route::get('/test-api', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'API is working!',
+        'timestamp' => now(),
+    ]);
+});
+
 // 🟢 Public APIs
 Route::get('/banners', [BannerController::class, 'index']);
 Route::get('/banners/{banner}', [BannerController::class, 'show']);
