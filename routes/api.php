@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\HomePage\BuyTicketContentController;
 use App\Http\Controllers\Api\Admin\HomePage\SlidingTextController;
 use App\Http\Controllers\Api\Admin\HomePage\EventContentController;
 use App\Http\Controllers\Api\Admin\HomePage\EventDirectionController;
+use App\Http\Controllers\Api\Admin\HomePage\HomeVideoController;
 use App\Http\Controllers\Api\Admin\Homepage\BlogController;
 use App\Http\Controllers\Api\Admin\FAQ\FaqController;
 use App\Http\Controllers\Api\Admin\Contact\ContactController;
@@ -48,6 +49,7 @@ Route::post('/contact-submit', [ContactController::class, 'saveContactForm']);
 Route::post('/subscribe', [SubscriptionController::class, 'store']);
 Route::get('/event-schedule', [EventScheduleController::class, 'index']);
 Route::get('/event-schedule/{id}', [EventScheduleController::class, 'show']); // 🟢 Single day by ID
+Route::get('/home-video', [HomeVideoController::class, 'index']); // 🟢 Get active home video
 
 
 
@@ -116,6 +118,13 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::match(['put', 'patch'], '/days/{id}', [DayController::class, 'update']); // ✅ Accept both PUT & PATCH
     Route::delete('/days/{id}', [DayController::class, 'destroy']); // Delete day
     Route::get('days/{id}', [DayController::class, 'show']);
+
+    // 🔒 Home Video APIs
+    Route::post('/home-video', [HomeVideoController::class, 'store']);        // Create home video
+    Route::put('home-video/{id}', [HomeVideoController::class, 'update']);   // Update home video
+    Route::patch('home-video/{id}/status', [HomeVideoController::class, 'updateStatus']); // Update status only
+    Route::get('/home-video/{id}', [HomeVideoController::class, 'show']);     // Get home video by ID
+    Route::delete('/home-video/{id}', [HomeVideoController::class, 'destroy']); // Delete home video
 
 });
 
