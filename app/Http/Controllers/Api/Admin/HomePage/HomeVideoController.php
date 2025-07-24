@@ -25,9 +25,6 @@ class HomeVideoController extends Controller
                 if ($homeVideo->thumbnail) {
                     $homeVideo->thumbnail_url = asset('storage/' . $homeVideo->thumbnail);
                 }
-                if ($homeVideo->video_file) {
-                    $homeVideo->video_url = asset('storage/' . $homeVideo->video_file);
-                }
             }
 
             return response()->json([
@@ -49,76 +46,74 @@ class HomeVideoController extends Controller
      * 🔒 Admin API: Update home video content
      */
     public function update(Request $request, $id)
-    {
-        try {
-            $request->validate([
-                'title' => 'sometimes|required|string|max:255',
-                'description' => 'nullable|string',
-                'video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,webm,mkv|max:51200', // 50MB max
-                'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-                'is_active' => 'sometimes|boolean',
-            ]);
+{
+    try {
+        $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'nullable|string',
+            'video_file' => 'nullable|file|mimes:mp4,avi,mov,wmv,flv,webm,mkv|max:51200',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'is_active' => 'sometimes|boolean',
+        ]);
 
-            $homeVideo = HomeVideo::findOrFail($id);
+        $homeVideo = HomeVideo::findOrFail($id);
 
-            $data = $request->only(['title', 'description', 'is_active']);
+        $data = $request->only(['title', 'description', 'is_active']);
 
-            // Handle video file upload
-            if ($request->hasFile('video_file')) {
-                // Delete old video file if exists
-                if ($homeVideo->video_file && Storage::disk('public')->exists($homeVideo->video_file)) {
-                    Storage::disk('public')->delete($homeVideo->video_file);
-                }
-                $data['video_file'] = $request->file('video_file')->store('home_videos', 'public');
+        // Handle video file upload
+        if ($request->hasFile('video_file')) {
+            \Log::info('Video file detected in request');
+            if ($homeVideo->video_file && Storage::disk('public')->exists($homeVideo->video_file)) {
+                Storage::disk('public')->delete($homeVideo->video_file);
             }
-
-            // Handle thumbnail upload
-            if ($request->hasFile('thumbnail')) {
-                // Delete old thumbnail if exists
-                if ($homeVideo->thumbnail && Storage::disk('public')->exists($homeVideo->thumbnail)) {
-                    Storage::disk('public')->delete($homeVideo->thumbnail);
-                }
-                $data['thumbnail'] = $request->file('thumbnail')->store('home_videos', 'public');
-            }
-
-            $homeVideo->update($data);
-
-            // Add URLs to response
-            if ($homeVideo->thumbnail) {
-                $homeVideo->thumbnail_url = asset('storage/' . $homeVideo->thumbnail);
-            }
-            if ($homeVideo->video_file) {
-                $homeVideo->video_url = asset('storage/' . $homeVideo->video_file);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Home video updated successfully',
-                'data' => $homeVideo
-            ], 200);
-
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
-
-        } catch (QueryException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Database error',
-                'error' => $e->getMessage()
-            ], 500);
-
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Server error',
-                'error' => $e->getMessage()
-            ], 500);
+            $data['video_file'] = $request->file('video_file')->store('home_videos', 'public');
         }
+
+        // Handle thumbnail upload
+        if ($request->hasFile('thumbnail')) {
+            \Log::info('Thumbnail detected in request');
+            if ($homeVideo->thumbnail && Storage::disk('public')->exists($homeVideo->thumbnail)) {
+                Storage::disk('public')->delete($homeVideo->thumbnail);
+            }
+            $data['thumbnail'] = $request->file('thumbnail')->store('home_videos', 'public');
+        }
+
+        $homeVideo->update($data);
+
+        // Add URLs to response
+        if ($homeVideo->thumbnail) {
+            $homeVideo->thumbnail_url = asset('storage/' . $homeVideo->thumbnail);
+        }
+        $video_url = asset('storage/' . $homeVideo->video_file);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Home video updated successfully',
+            'data' => $homeVideo
+        ], 200);
+
+    } catch (ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation error',
+            'errors' => $e->errors()
+        ], 422);
+
+    } catch (QueryException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Database error',
+            'error' => $e->getMessage()
+        ], 500);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Server error',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     /**
      * 🔒 Admin API: Get home video by ID (for admin editing)
@@ -130,9 +125,6 @@ class HomeVideoController extends Controller
 
             if ($homeVideo->thumbnail) {
                 $homeVideo->thumbnail_url = asset('storage/' . $homeVideo->thumbnail);
-            }
-            if ($homeVideo->video_file) {
-                $homeVideo->video_url = asset('storage/' . $homeVideo->video_file);
             }
 
             return response()->json([
@@ -187,9 +179,6 @@ class HomeVideoController extends Controller
             // Add URLs to response
             if ($homeVideo->thumbnail) {
                 $homeVideo->thumbnail_url = asset('storage/' . $homeVideo->thumbnail);
-            }
-            if ($homeVideo->video_file) {
-                $homeVideo->video_url = asset('storage/' . $homeVideo->video_file);
             }
 
             return response()->json([

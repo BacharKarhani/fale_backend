@@ -5,45 +5,37 @@ namespace App\Http\Controllers\Api\Admin\Homepage;
 use App\Http\Controllers\Controller;
 use App\Models\Day;
 use App\Models\Event;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class EventScheduleController extends Controller
 {
     /**
-     * 🟢 Get all days with their events
+     * List all days with their events.
      */
     public function index(): JsonResponse
     {
         try {
-            $days = Day::with('events')->get()->map(function (Day $day) {
+            $days = Day::with('events')->get()->map(function ($day) {
                 return $this->formatDay($day);
-            })->values();
+            });
 
             return response()->json([
                 'success' => true,
                 'data' => $days,
             ], 200);
         } catch (\Throwable $e) {
-            Log::error('Error fetching all days', [
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while fetching all event schedules.',
-            ], 500);
+            Log::error('Failed to fetch days/events', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to fetch events.'], 500);
         }
     }
 
     /**
-     * 🟢 Get a single event by its ID
+     * Get a single event by ID.
      */
-    public function show(int $id): JsonResponse
+    public function show($id): JsonResponse
     {
         try {
             $event = Event::with('day')->find($id);
@@ -60,22 +52,150 @@ class EventScheduleController extends Controller
                 'data' => $this->formatEvent($event),
             ], 200);
         } catch (\Throwable $e) {
-            Log::error("Error fetching event with ID: $id", [
-                'error' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while fetching the event.',
-            ], 500);
+            Log::error('Failed to fetch event', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to fetch event.'], 500);
         }
     }
 
     /**
-     * 🛠 Format Day data with its events
+     * Create a new event.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'day_id' => 'required|exists:days,id',
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'time' => 'required|string|max:255',
+                'address' => 'required|string|max:255',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            ]);
+
+            $data = $request->only(['day_id', 'title', 'description', 'time', 'address']);
+
+            if ($request->hasFile('image')) {
+                $imageName = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+                $request->file('image')->move(public_path('images'), $imageName);
+                $data['image'] = $imageName;
+            } else {
+                $data['image'] = '';
+            }
+
+            $event = Event::create($data);
+
+            return response()->json([
+                'success' => true,
+                'data' => $this->formatEvent($event->load('day')),
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('Failed to create event', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to create event.'], 500);
+        }
+    }
+
+    /**
+     * Update an event.
+     */
+    public function update(Request $request, $id): JsonResponse
+    {
+        try {
+            $event = Event::find($id);
+
+            if (!$event) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Event not found.',
+                ], 404);
+            }
+
+            $validated = $request->validate([
+                'day_id' => 'sometimes|required|exists:days,id',
+                'title' => 'sometimes|required|string|max:255',
+                'description' => 'sometimes|required|string',
+                'time' => 'sometimes|required|string|max:255',
+                'address' => 'sometimes|required|string|max:255',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            ]);
+
+            $data = $request->only(['day_id', 'title', 'description', 'time', 'address']);
+
+            // If a new image is uploaded, replace the old one.
+            if ($request->hasFile('image')) {
+                if ($event->image && file_exists(public_path('images/' . $event->image))) {
+                    unlink(public_path('images/' . $event->image));
+                }
+                $imageName = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
+                $request->file('image')->move(public_path('images'), $imageName);
+                $data['image'] = $imageName;
+            }
+
+            $event->update($data);
+
+            return response()->json([
+                'success' => true,
+                'data' => $this->formatEvent($event->fresh('day')),
+            ], 200);
+        } catch (\Throwable $e) {
+            Log::error('Failed to update event', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to update event.'], 500);
+        }
+    }
+
+    /**
+     * Delete an event.
+     */
+    public function destroy($id): JsonResponse
+    {
+        try {
+            $event = Event::find($id);
+
+            if (!$event) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Event not found.',
+                ], 404);
+            }
+
+            // Delete the image if exists
+            if ($event->image && file_exists(public_path('images/' . $event->image))) {
+                unlink(public_path('images/' . $event->image));
+            }
+
+            $event->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Event deleted successfully.',
+            ], 200);
+        } catch (\Throwable $e) {
+            Log::error('Failed to delete event', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to delete event.'], 500);
+        }
+    }
+
+    /**
+     * Public: Get all event schedule (all days with events)
+     */
+    public function publicSchedule(): JsonResponse
+    {
+        try {
+            $days = Day::with('events')->get()->map(function ($day) {
+                return $this->formatDay($day);
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $days,
+            ], 200);
+        } catch (\Throwable $e) {
+            Log::error('Failed to fetch public schedule', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to fetch schedule.'], 500);
+        }
+    }
+
+    /**
+     * Helper: Format Day with its events.
      */
     private function formatDay(Day $day): array
     {
@@ -90,7 +210,7 @@ class EventScheduleController extends Controller
     }
 
     /**
-     * 🛠 Format single Event data
+     * Helper: Format Event.
      */
     private function formatEvent($event): array
     {
@@ -100,7 +220,7 @@ class EventScheduleController extends Controller
             'description' => $event->description,
             'image' => (!empty($event->image) && file_exists(public_path('images/' . $event->image)))
                 ? asset('images/' . $event->image)
-                : asset('images/default-placeholder.jpg'),
+                : null,
             'time' => $event->time,
             'address' => $event->address,
             'day' => [

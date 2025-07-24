@@ -47,8 +47,8 @@ Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/contact-info', [ContactController::class, 'getContactInfo']);
 Route::post('/contact-submit', [ContactController::class, 'saveContactForm']);
 Route::post('/subscribe', [SubscriptionController::class, 'store']);
-Route::get('/event-schedule', [EventScheduleController::class, 'index']);
-Route::get('/event-schedule/{id}', [EventScheduleController::class, 'show']); // 🟢 Single day by ID
+Route::get('/user-event-schedule', [EventScheduleController::class, 'publicSchedule']);
+Route::get('/event-schedule/{id}', action: [EventScheduleController::class, 'show']); // 🟢 Single day by ID
 Route::get('/home-video', [HomeVideoController::class, 'index']); // 🟢 Get active home video
 
 
@@ -126,6 +126,14 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::get('/home-video/{id}', [HomeVideoController::class, 'show']);     // Get home video by ID
     Route::delete('/home-video/{id}', [HomeVideoController::class, 'destroy']); // Delete home video
 
+    // 🔒 Event Schedule APIs
+Route::prefix('event-schedule')->group(function () {
+    Route::get('/', [EventScheduleController::class, 'index']);         // List all events grouped by day
+    Route::get('/{id}', [EventScheduleController::class, 'show']);      // Get single event
+    Route::post('/', [EventScheduleController::class, 'store']);        // Add event
+    Route::put('/{id}', [EventScheduleController::class, 'update']);    // Edit event
+    Route::delete('/{id}', [EventScheduleController::class, 'destroy']); // Delete event
+});
 });
 
 
