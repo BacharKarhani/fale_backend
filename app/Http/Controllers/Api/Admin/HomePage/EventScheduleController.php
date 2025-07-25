@@ -9,12 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class EventScheduleController extends Controller
 {
-    /**
-     * List all days with their events.
-     */
     public function index(): JsonResponse
     {
         try {
@@ -32,9 +30,6 @@ class EventScheduleController extends Controller
         }
     }
 
-    /**
-     * Get a single event by ID.
-     */
     public function show($id): JsonResponse
     {
         try {
@@ -57,9 +52,6 @@ class EventScheduleController extends Controller
         }
     }
 
-    /**
-     * Create a new event.
-     */
     public function store(Request $request): JsonResponse
     {
         try {
@@ -76,8 +68,8 @@ class EventScheduleController extends Controller
 
             if ($request->hasFile('image')) {
                 $imageName = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
-                $request->file('image')->move(public_path('images'), $imageName);
-                $data['image'] = $imageName;
+                $path = $request->file('image')->storeAs('public/events', $imageName);
+                $data['image'] = 'events/' . $imageName;
             } else {
                 $data['image'] = '';
             }
@@ -94,9 +86,6 @@ class EventScheduleController extends Controller
         }
     }
 
-    /**
-     * Update an event.
-     */
     public function update(Request $request, $id): JsonResponse
     {
         try {
@@ -120,14 +109,14 @@ class EventScheduleController extends Controller
 
             $data = $request->only(['day_id', 'title', 'description', 'time', 'address']);
 
-            // If a new image is uploaded, replace the old one.
             if ($request->hasFile('image')) {
-                if ($event->image && file_exists(public_path('images/' . $event->image))) {
-                    unlink(public_path('images/' . $event->image));
+                if ($event->image && Storage::exists('public/' . $event->image)) {
+                    Storage::delete('public/' . $event->image);
                 }
+
                 $imageName = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
-                $request->file('image')->move(public_path('images'), $imageName);
-                $data['image'] = $imageName;
+                $path = $request->file('image')->storeAs('public/events', $imageName);
+                $data['image'] = 'events/' . $imageName;
             }
 
             $event->update($data);
@@ -142,9 +131,6 @@ class EventScheduleController extends Controller
         }
     }
 
-    /**
-     * Delete an event.
-     */
     public function destroy($id): JsonResponse
     {
         try {
@@ -157,9 +143,8 @@ class EventScheduleController extends Controller
                 ], 404);
             }
 
-            // Delete the image if exists
-            if ($event->image && file_exists(public_path('images/' . $event->image))) {
-                unlink(public_path('images/' . $event->image));
+            if ($event->image && Storage::exists('public/' . $event->image)) {
+                Storage::delete('public/' . $event->image);
             }
 
             $event->delete();
@@ -174,9 +159,6 @@ class EventScheduleController extends Controller
         }
     }
 
-    /**
-     * Public: Get all event schedule (all days with events)
-     */
     public function publicSchedule(): JsonResponse
     {
         try {
@@ -194,9 +176,6 @@ class EventScheduleController extends Controller
         }
     }
 
-    /**
-     * Helper: Format Day with its events.
-     */
     private function formatDay(Day $day): array
     {
         return [
@@ -209,18 +188,13 @@ class EventScheduleController extends Controller
         ];
     }
 
-    /**
-     * Helper: Format Event.
-     */
     private function formatEvent($event): array
     {
         return [
             'id' => $event->id,
             'title' => $event->title,
             'description' => $event->description,
-            'image' => (!empty($event->image) && file_exists(public_path('images/' . $event->image)))
-                ? asset('images/' . $event->image)
-                : null,
+            'image' => $event->image ? asset('storage/' . $event->image) : null,
             'time' => $event->time,
             'address' => $event->address,
             'day' => [
