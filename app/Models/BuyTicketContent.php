@@ -15,5 +15,6 @@ class BuyTicketContent extends Model
         'title',
         'description',
         'image',
+        'is_shown',
     ];
 }

@@ -16,7 +16,8 @@ class EventDirection extends Model
         'call_text',
         'call_number',
         'call_icon',
-        'counters'
+        'counters',
+        'is_shown'
     ];
 
     protected $casts = [

@@ -59,9 +59,9 @@ public function store(Request $request)
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
             'date' => 'nullable|string|max:255',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
-        // Handle image upload
         $imagePath = $request->file('image')->store('banners', 'public');
 
         $banner = Banner::create([
@@ -71,6 +71,7 @@ public function store(Request $request)
             'image' => $imagePath,
             'location' => $request->location,
             'date' => $request->date,
+            'is_shown' => $request->has('is_shown') ? $request->is_shown : true,
         ]);
 
         return response()->json([
@@ -112,6 +113,7 @@ public function update(Request $request, Banner $banner)
             'description' => 'nullable|string',
             'location' => 'nullable|string|max:255',
             'date' => 'nullable|string|max:255',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
         $data = $request->all();
@@ -128,30 +130,28 @@ public function update(Request $request, Banner $banner)
             'data' => $banner
         ], 200);
 
-    // ... (rest of your error handling)
+    } catch (ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation error',
+            'errors' => $e->errors()
+        ], 422);
 
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
+    } catch (QueryException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Database error',
+            'error' => $e->getMessage()
+        ], 500);
 
-        } catch (QueryException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Database error',
-                'error' => $e->getMessage()
-            ], 500);
-
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Server error',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Server error',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
     public function destroy(Banner $banner)
     {

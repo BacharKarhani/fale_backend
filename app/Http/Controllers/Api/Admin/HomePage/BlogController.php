@@ -93,11 +93,14 @@ class BlogController extends Controller
             'description' => 'nullable|string',
             'published_at' => 'nullable|date',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('blog_images', 'public');
         }
+
+        $validated['is_shown'] = $request->has('is_shown') ? $request->is_shown : true;
 
         $blog = Blog::create($validated);
         $blog->image_url = $blog->image ? asset('storage/' . $blog->image) : null;
@@ -126,6 +129,7 @@ class BlogController extends Controller
             'description' => 'nullable|string',
             'published_at' => 'nullable|date',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -133,6 +137,10 @@ class BlogController extends Controller
                 Storage::disk('public')->delete($blog->image);
             }
             $validated['image'] = $request->file('image')->store('blog_images', 'public');
+        }
+
+        if ($request->has('is_shown')) {
+            $validated['is_shown'] = $request->is_shown;
         }
 
         $blog->update($validated);

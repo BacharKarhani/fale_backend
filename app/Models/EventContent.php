@@ -18,6 +18,7 @@ class EventContent extends Model
         'icon_2_class',
         'icon_2_subtitle',
         'icon_2_subtagline',
-        'event_image'
+        'event_image',
+        'is_shown',
     ];
 }

@@ -10,6 +10,6 @@ class TeamMember extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'role', 'image', 'hover_text', 'link'
+        'name', 'role', 'image', 'hover_text', 'link','is_shown'
     ];
 }

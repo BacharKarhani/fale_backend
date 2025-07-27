@@ -61,6 +61,7 @@ class EventScheduleController extends Controller
             'time' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
         $data = $request->only(['day_id', 'title', 'description', 'time', 'address']);
@@ -73,6 +74,8 @@ class EventScheduleController extends Controller
         } else {
             $data['image'] = '';
         }
+
+        $data['is_shown'] = $request->has('is_shown') ? $request->is_shown : true;
 
         $event = Event::create($data);
 
@@ -106,19 +109,24 @@ class EventScheduleController extends Controller
             'time' => 'sometimes|required|string|max:255',
             'address' => 'sometimes|required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
         $data = $request->only(['day_id', 'title', 'description', 'time', 'address']);
 
         if ($request->hasFile('image')) {
-            if ($event->image && Storage::exists('public/events/' . $event->image)) {
-                Storage::delete('public/events/' . $event->image);
+            if ($event->image && \Storage::exists('public/events/' . $event->image)) {
+                \Storage::delete('public/events/' . $event->image);
             }
 
             $image = $request->file('image');
             $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
             $image->storeAs('public/events', $imageName);
             $data['image'] = $imageName;
+        }
+
+        if ($request->has('is_shown')) {
+            $data['is_shown'] = $request->is_shown;
         }
 
         $event->update($data);

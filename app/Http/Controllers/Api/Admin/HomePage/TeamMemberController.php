@@ -35,11 +35,14 @@ class TeamMemberController extends Controller
             'hover_text' => 'nullable|string',
             'link' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('team_images', 'public');
         }
+
+        $validated['is_shown'] = $request->has('is_shown') ? $request->is_shown : true;
 
         $member = TeamMember::create($validated);
 
@@ -63,6 +66,7 @@ class TeamMemberController extends Controller
             'hover_text' => 'nullable|string',
             'link' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -70,6 +74,10 @@ class TeamMemberController extends Controller
                 Storage::disk('public')->delete($member->image);
             }
             $validated['image'] = $request->file('image')->store('team_images', 'public');
+        }
+
+        if ($request->has('is_shown')) {
+            $validated['is_shown'] = $request->is_shown;
         }
 
         $member->update($validated);

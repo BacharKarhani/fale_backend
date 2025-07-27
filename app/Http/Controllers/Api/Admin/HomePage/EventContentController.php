@@ -50,7 +50,8 @@ class EventContentController extends Controller
             'icon_2_class' => 'required|string|max:100',
             'icon_2_subtitle' => 'required|string|max:255',
             'icon_2_subtagline' => 'required|string',
-            'event_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+            'event_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
         if (EventContent::count() >= 1) {
@@ -69,6 +70,8 @@ class EventContentController extends Controller
         if ($request->hasFile('event_image')) {
             $data['event_image'] = $request->file('event_image')->store('event_content', 'public');
         }
+
+        $data['is_shown'] = $request->has('is_shown') ? $request->is_shown : true;
 
         $content = EventContent::create($data);
 
@@ -91,7 +94,8 @@ class EventContentController extends Controller
             'icon_2_class' => 'required|string|max:100',
             'icon_2_subtitle' => 'required|string|max:255',
             'icon_2_subtagline' => 'required|string',
-            'event_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+            'event_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'is_shown' => 'sometimes|boolean',
         ]);
 
         $content = EventContent::findOrFail($id);
@@ -103,11 +107,16 @@ class EventContentController extends Controller
             $content->event_image = $request->file('event_image')->store('event_content', 'public');
         }
 
-        $content->update($request->only([
+        $updateData = $request->only([
             'section_tagline', 'section_title',
             'icon_1_class', 'icon_1_subtitle', 'icon_1_subtagline',
             'icon_2_class', 'icon_2_subtitle', 'icon_2_subtagline'
-        ]));
+        ]);
+        if ($request->has('is_shown')) {
+            $updateData['is_shown'] = $request->is_shown;
+        }
+
+        $content->update($updateData);
 
         return response()->json([
             'success' => true,

@@ -66,7 +66,8 @@ public function show($id)
             $request->validate([
                 'title' => 'required|string|max:255',
                 'hover_text' => 'nullable|string|max:255',
-                'icon' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:2048'
+                'icon' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:2048',
+                'is_shown' => 'sometimes|boolean',
             ]);
 
             $iconPath = null;
@@ -79,6 +80,7 @@ public function show($id)
                 'title' => $request->title,
                 'hover_text' => $request->hover_text,
                 'icon' => $iconPath,
+                'is_shown' => $request->has('is_shown') ? $request->is_shown : true,
             ]);
 
             return response()->json([
@@ -112,7 +114,8 @@ public function show($id)
             $request->validate([
                 'title' => 'required|string|max:255',
                 'hover_text' => 'nullable|string|max:255',
-                'icon' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:2048'
+                'icon' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:2048',
+                'is_shown' => 'sometimes|boolean',
             ]);
 
             if ($request->hasFile('icon')) {
@@ -126,6 +129,9 @@ public function show($id)
 
             $slidingText->title = $request->title;
             $slidingText->hover_text = $request->hover_text;
+            if ($request->has('is_shown')) {
+                $slidingText->is_shown = $request->is_shown;
+            }
             $slidingText->save();
 
             return response()->json([

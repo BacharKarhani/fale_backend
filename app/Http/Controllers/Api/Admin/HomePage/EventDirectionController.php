@@ -68,6 +68,7 @@ class EventDirectionController extends Controller
                 'counters' => 'required|array',
                 'counters.*.title' => 'required|string|max:255',
                 'counters.*.value' => 'required|integer',
+                'is_shown' => 'sometimes|boolean',
             ]);
 
             $callIconPath = null;
@@ -83,6 +84,7 @@ class EventDirectionController extends Controller
                 'call_number' => $validated['call_number'],
                 'call_icon' => $callIconPath,
                 'counters' => $validated['counters'],
+                'is_shown' => $request->has('is_shown') ? $request->is_shown : true,
             ]);
 
             $direction->call_icon_url = $callIconPath ? asset('storage/' . $callIconPath) : null;
@@ -118,6 +120,7 @@ class EventDirectionController extends Controller
                 'counters' => 'required|array',
                 'counters.*.title' => 'required|string|max:255',
                 'counters.*.value' => 'required|integer',
+                'is_shown' => 'sometimes|boolean',
             ]);
 
             if ($request->hasFile('call_icon')) {
@@ -128,14 +131,19 @@ class EventDirectionController extends Controller
                 $direction->call_icon = $request->file('call_icon')->store('event_direction', 'public');
             }
 
-            $direction->update([
+            $updateData = [
                 'section_tagline' => $validated['section_tagline'],
                 'section_title' => $validated['section_title'],
                 'description' => $validated['description'],
                 'call_text' => $validated['call_text'],
                 'call_number' => $validated['call_number'],
                 'counters' => $validated['counters'],
-            ]);
+            ];
+            if ($request->has('is_shown')) {
+                $updateData['is_shown'] = $request->is_shown;
+            }
+
+            $direction->update($updateData);
 
             $direction->call_icon_url = $direction->call_icon 
                 ? asset('storage/' . $direction->call_icon)

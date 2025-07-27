@@ -47,9 +47,13 @@ class ServiceController extends Controller
                 'description' => 'required|string',
                 'icon' => 'nullable|string|max:255',
                 'link' => 'nullable|string|max:255',
+                'is_shown' => 'sometimes|boolean',
             ]);
 
-            $service = Service::create($request->all());
+            $data = $request->all();
+            $data['is_shown'] = $request->has('is_shown') ? $request->is_shown : true;
+
+            $service = Service::create($data);
 
             return response()->json([
                 'success' => true,
@@ -110,9 +114,15 @@ class ServiceController extends Controller
                 'description' => 'sometimes|required|string',
                 'icon' => 'nullable|string|max:255',
                 'link' => 'nullable|string|max:255',
+                'is_shown' => 'sometimes|boolean',
             ]);
 
-            $service->update($request->all());
+            $data = $request->all();
+            if ($request->has('is_shown')) {
+                $data['is_shown'] = $request->is_shown;
+            }
+
+            $service->update($data);
 
             return response()->json([
                 'success' => true,

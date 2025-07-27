@@ -46,6 +46,7 @@ class BuyTicketContentController extends Controller
             'title'       => 'required|string|max:255',
             'description' => 'required|string',
             'image'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'is_shown'    => 'sometimes|boolean',
         ]);
 
         $content = BuyTicketContent::findOrFail($id);
@@ -57,7 +58,12 @@ class BuyTicketContentController extends Controller
             $content->image = $request->file('image')->store('buy_ticket', 'public');
         }
 
-        $content->update($request->only(['address', 'timing', 'title', 'description']));
+        $updateData = $request->only(['address', 'timing', 'title', 'description']);
+        if ($request->has('is_shown')) {
+            $updateData['is_shown'] = $request->is_shown;
+        }
+
+        $content->update($updateData);
 
         return response()->json([
             'success' => true,

@@ -13,5 +13,6 @@ protected $fillable = [
     'image',
     'location',
     'date',
+    'is_shown'
 ];
 }

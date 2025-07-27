@@ -13,5 +13,6 @@ class SlidingText extends Model
         'title',
         'hover_text',
         'icon',
+        'is_shown'
     ];
 }

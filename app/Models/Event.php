@@ -16,6 +16,7 @@ class Event extends Model
         'image',
         'time',
         'address',
+        'is_shown',
     ];
 
     public function day()

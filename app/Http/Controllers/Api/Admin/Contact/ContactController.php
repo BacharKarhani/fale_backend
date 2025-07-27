@@ -29,7 +29,8 @@ public function getContactInfo()
             'location' => $contact->location,
             'emails' => json_decode($contact->emails),
             'phones' => json_decode($contact->phones),
-            'services' => json_decode($contact->services)
+            'services' => json_decode($contact->services),
+            'is_shown' => $contact->is_shown, // <-- Add this line
         ]
     ]);
 }
@@ -48,11 +49,12 @@ public function getAdminContactInfo()
     return response()->json([
         'success' => true,
         'data' => [
-            'id' => $contact->id, // 👈 Send ID for React PUT/DELETE
+            'id' => $contact->id,
             'location' => $contact->location,
             'emails' => json_decode($contact->emails),
             'phones' => json_decode($contact->phones),
-            'services' => json_decode($contact->services)
+            'services' => json_decode($contact->services),
+            'is_shown' => $contact->is_shown,
         ]
     ]);
 }
@@ -135,6 +137,7 @@ public function getAdminContactInfo()
             'emails' => json_encode($validated['emails']),
             'phones' => json_encode($validated['phones']),
             'services' => json_encode($validated['services']),
+            'is_shown' => $request->has('is_shown') ? $request->is_shown : true,
         ]);
 
         return response()->json([
@@ -173,6 +176,7 @@ public function getAdminContactInfo()
             'emails' => isset($validated['emails']) ? json_encode($validated['emails']) : $contact->emails,
             'phones' => isset($validated['phones']) ? json_encode($validated['phones']) : $contact->phones,
             'services' => isset($validated['services']) ? json_encode($validated['services']) : $contact->services,
+            'is_shown' => $request->has('is_shown') ? $request->is_shown : $contact->is_shown,
         ]);
 
         return response()->json([

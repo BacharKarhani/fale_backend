@@ -13,6 +13,7 @@ class Service extends Model
         'title',
         'description',
         'icon',
-        'link'
+        'link',
+        'is_shown'
     ];
 }

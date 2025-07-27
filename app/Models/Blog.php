@@ -16,6 +16,7 @@ protected $fillable = [
     'description',
     'image',
     'published_at',
+    'is_shown', // 🟢 Add is_shown here
 ];
 
 }
