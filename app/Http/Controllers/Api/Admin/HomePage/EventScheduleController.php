@@ -210,6 +210,7 @@ class EventScheduleController extends Controller
                 : null,
             'time' => $event->time,
             'address' => $event->address,
+            'is_shown' => $event->is_shown, // <-- Add this line
             'day' => [
                 'id' => $event->day?->id,
                 'day_title' => $event->day?->day_title,

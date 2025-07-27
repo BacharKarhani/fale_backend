@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\About\MissionController;
 use App\Http\Controllers\Api\Admin\Homepage\TeamMemberController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -59,6 +60,7 @@ Route::post('/subscribe', [SubscriptionController::class, 'store']);
 Route::get('/user-event-schedule', [EventScheduleController::class, 'publicSchedule']);
 Route::get('/event-schedule/{id}', action: [EventScheduleController::class, 'show']); // 🟢 Single day by ID
 Route::get('/home-video', [HomeVideoController::class, 'index']); // 🟢 Get active home video
+Route::get('/mission', [MissionController::class, 'index']);
 
 
 
@@ -134,16 +136,22 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::patch('home-video/{id}/status', [HomeVideoController::class, 'updateStatus']); // Update status only
     Route::get('/home-video/{id}', [HomeVideoController::class, 'show']);     // Get home video by ID
     Route::delete('/home-video/{id}', [HomeVideoController::class, 'destroy']); // Delete home video
+// 🔒 Mission APIs
+    Route::get('/admin/missions', [MissionController::class, 'getAll']);
+    Route::post('/admin/missions', [MissionController::class, 'store']);
+    Route::put('/admin/missions/{id}', [MissionController::class, 'update']);
+    Route::delete('/admin/missions/{id}', [MissionController::class, 'destroy']);
 
     // 🔒 Event Schedule APIs
-Route::prefix('event-schedule')->group(function () {
-    Route::get('/', [EventScheduleController::class, 'index']);         // List all events grouped by day
-    Route::get('/{id}', [EventScheduleController::class, 'show']);      // Get single event
-    Route::post('/', [EventScheduleController::class, 'store']);        // Add event
-    Route::put('/{id}', [EventScheduleController::class, 'update']);    // Edit event
-    Route::delete('/{id}', [EventScheduleController::class, 'destroy']); // Delete event
+    Route::prefix('event-schedule')->group(function () {
+        Route::get('/', [EventScheduleController::class, 'index']);         // List all events grouped by day
+        Route::get('/{id}', [EventScheduleController::class, 'show']);      // Get single event
+        Route::post('/', [EventScheduleController::class, 'store']);        // Add event
+        Route::put('/{id}', [EventScheduleController::class, 'update']);    // Edit event
+        Route::delete('/{id}', [EventScheduleController::class, 'destroy']); // Delete event
+    });
 });
-});
+
 
 
 
