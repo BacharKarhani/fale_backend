@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ContactSetting;
 use App\Models\ReceivedEmail;
+use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
@@ -73,12 +74,20 @@ public function getAdminContactInfo()
             'message' => 'required|string'
         ]);
 
-        $received = ReceivedEmail::create($validated);
+        // Send email to your desired address
+        $toEmail = 'Info@lafeleb.com'; // <-- Change to your desired email
+
+        Mail::raw(
+            "Name: {$validated['name']}\nEmail: {$validated['email']}\nPhone: {$validated['phone']}\nService: {$validated['service']}\nMessage: {$validated['message']}",
+            function ($message) use ($toEmail, $validated) {
+                $message->to($toEmail)
+                        ->subject('New Contact Form Submission');
+            }
+        );
 
         return response()->json([
             'success' => true,
-            'message' => 'Your message has been received successfully!',
-            'data' => $received
+            'message' => 'Your message has been sent successfully!'
         ], 201);
     }
 
