@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\Admin\Subscription\SubscriptionController;
 use App\Http\Controllers\Api\Admin\Homepage\DayController;
 use App\Http\Controllers\Api\Admin\Homepage\EventScheduleController;
 use App\Http\Middleware\IsAdmin;
+use App\Http\Controllers\Api\Admin\HomePage\LandingPageController;
 
 // 🟢 Public Auth APIs
 Route::post('/register', [AuthController::class, 'register']);
@@ -61,7 +62,7 @@ Route::get('/user-event-schedule', [EventScheduleController::class, 'publicSched
 Route::get('/event-schedule/{id}', action: [EventScheduleController::class, 'show']); // 🟢 Single day by ID
 Route::get('/home-video', [HomeVideoController::class, 'index']); // 🟢 Get active home video
 Route::get('/mission', [MissionController::class, 'index']);
-
+Route::get('/landing', [LandingPageController::class, 'index']);
 
 
 // 🔒 Protected APIs (Admins only)
@@ -150,6 +151,15 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
         Route::put('/{id}', [EventScheduleController::class, 'update']);    // Edit event
         Route::delete('/{id}', [EventScheduleController::class, 'destroy']); // Delete event
     });
+
+    // 🔒 Landing Page APIs
+ Route::prefix('admin/homepage')->group(function () {
+    Route::get('/landing/{id}', [LandingPageController::class, 'show']);
+    Route::put('/landing', [LandingPageController::class, 'update']);
+    Route::post('/landing', [LandingPageController::class, 'update']);
+    Route::delete('/landing/{id}', [LandingPageController::class, 'destroy']);
+});
+
 });
 
 

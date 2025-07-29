@@ -7,8 +7,9 @@ use App\Models\Day;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class EventScheduleController extends Controller
 {
@@ -22,7 +23,7 @@ class EventScheduleController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $days,
-            ], 200);
+            ]);
         } catch (\Throwable $e) {
             Log::error('Failed to fetch days/events', ['error' => $e->getMessage()]);
             return response()->json(['success' => false, 'message' => 'Failed to fetch events.'], 500);
@@ -44,103 +45,97 @@ class EventScheduleController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $this->formatEvent($event),
-            ], 200);
+            ]);
         } catch (\Throwable $e) {
             Log::error('Failed to fetch event', ['error' => $e->getMessage()]);
             return response()->json(['success' => false, 'message' => 'Failed to fetch event.'], 500);
         }
     }
 
-   public function store(Request $request): JsonResponse
-{
-    try {
-        $validated = $request->validate([
-            'day_id' => 'required|exists:days,id',
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'time' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'is_shown' => 'sometimes|boolean',
-        ]);
+    public function store(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'day_id' => 'required|exists:days,id',
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'time' => 'required|string|max:255',
+                'address' => 'required|string|max:255',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+                'is_shown' => 'sometimes|boolean',
+            ]);
 
-        $data = $request->only(['day_id', 'title', 'description', 'time', 'address']);
+            $data = $request->only(['day_id', 'title', 'description', 'time', 'address']);
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/events', $imageName);
-            $data['image'] = $imageName;
-        } else {
-            $data['image'] = '';
-        }
-
-        $data['is_shown'] = $request->has('is_shown') ? $request->is_shown : true;
-
-        $event = Event::create($data);
-
-        return response()->json([
-            'success' => true,
-            'data' => $this->formatEvent($event->load('day')),
-        ], 201);
-    } catch (\Throwable $e) {
-        Log::error('Failed to create event', ['error' => $e->getMessage()]);
-        return response()->json(['success' => false, 'message' => 'Failed to create event.'], 500);
-    }
-}
-
-
-   public function update(Request $request, $id): JsonResponse
-{
-    try {
-        $event = Event::find($id);
-
-        if (!$event) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Event not found.',
-            ], 404);
-        }
-
-        $validated = $request->validate([
-            'day_id' => 'sometimes|required|exists:days,id',
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'time' => 'sometimes|required|string|max:255',
-            'address' => 'sometimes|required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'is_shown' => 'sometimes|boolean',
-        ]);
-
-        $data = $request->only(['day_id', 'title', 'description', 'time', 'address']);
-
-        if ($request->hasFile('image')) {
-            if ($event->image && \Storage::exists('public/events/' . $event->image)) {
-                \Storage::delete('public/events/' . $event->image);
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('events', 'public');
+                $data['image'] = $path;
+            } else {
+                $data['image'] = null;
             }
 
-            $image = $request->file('image');
-            $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('public/events', $imageName);
-            $data['image'] = $imageName;
+            $data['is_shown'] = $request->has('is_shown') ? $request->is_shown : true;
+
+            $event = Event::create($data);
+
+            return response()->json([
+                'success' => true,
+                'data' => $this->formatEvent($event->load('day')),
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('Failed to create event', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to create event.'], 500);
         }
-
-        if ($request->has('is_shown')) {
-            $data['is_shown'] = $request->is_shown;
-        }
-
-        $event->update($data);
-
-        return response()->json([
-            'success' => true,
-            'data' => $this->formatEvent($event->fresh('day')),
-        ], 200);
-    } catch (\Throwable $e) {
-        Log::error('Failed to update event', ['error' => $e->getMessage()]);
-        return response()->json(['success' => false, 'message' => 'Failed to update event.'], 500);
     }
-}
 
+    public function update(Request $request, $id): JsonResponse
+    {
+        try {
+            $event = Event::find($id);
+
+            if (!$event) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Event not found.',
+                ], 404);
+            }
+
+            $validated = $request->validate([
+                'day_id' => 'sometimes|required|exists:days,id',
+                'title' => 'sometimes|required|string|max:255',
+                'description' => 'sometimes|required|string',
+                'time' => 'sometimes|required|string|max:255',
+                'address' => 'sometimes|required|string|max:255',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+                'is_shown' => 'sometimes|boolean',
+            ]);
+
+            $data = $request->only(['day_id', 'title', 'description', 'time', 'address']);
+
+            if ($request->hasFile('image')) {
+                if ($event->image && Storage::disk('public')->exists($event->image)) {
+                    Storage::disk('public')->delete($event->image);
+                }
+
+                $path = $request->file('image')->store('events', 'public');
+                $data['image'] = $path;
+            }
+
+            if ($request->has('is_shown')) {
+                $data['is_shown'] = $request->is_shown;
+            }
+
+            $event->update($data);
+
+            return response()->json([
+                'success' => true,
+                'data' => $this->formatEvent($event->fresh('day')),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Failed to update event', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to update event.'], 500);
+        }
+    }
 
     public function destroy($id): JsonResponse
     {
@@ -154,8 +149,8 @@ class EventScheduleController extends Controller
                 ], 404);
             }
 
-            if ($event->image && file_exists(public_path('images/' . $event->image))) {
-                unlink(public_path('images/' . $event->image));
+            if ($event->image && Storage::disk('public')->exists($event->image)) {
+                Storage::disk('public')->delete($event->image);
             }
 
             $event->delete();
@@ -163,7 +158,7 @@ class EventScheduleController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Event deleted successfully.',
-            ], 200);
+            ]);
         } catch (\Throwable $e) {
             Log::error('Failed to delete event', ['error' => $e->getMessage()]);
             return response()->json(['success' => false, 'message' => 'Failed to delete event.'], 500);
@@ -180,7 +175,7 @@ class EventScheduleController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $days,
-            ], 200);
+            ]);
         } catch (\Throwable $e) {
             Log::error('Failed to fetch public schedule', ['error' => $e->getMessage()]);
             return response()->json(['success' => false, 'message' => 'Failed to fetch schedule.'], 500);
@@ -205,12 +200,10 @@ class EventScheduleController extends Controller
             'id' => $event->id,
             'title' => $event->title,
             'description' => $event->description,
-            'image' => (!empty($event->image) && file_exists(public_path('images/' . $event->image)))
-                ? 'images/' . $event->image
-                : null,
+            'image' => $event->image ? Storage::url($event->image) : null,
             'time' => $event->time,
             'address' => $event->address,
-            'is_shown' => $event->is_shown, // <-- Add this line
+            'is_shown' => $event->is_shown,
             'day' => [
                 'id' => $event->day?->id,
                 'day_title' => $event->day?->day_title,
@@ -219,4 +212,3 @@ class EventScheduleController extends Controller
         ];
     }
 }
-
