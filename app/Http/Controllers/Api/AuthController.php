@@ -23,6 +23,10 @@ class AuthController extends Controller
                 'phone' => 'nullable|string|max:20',
                 'dob' => 'nullable|date',
                 'gender' => 'nullable|in:male,female,other',
+                'company_name' => 'nullable|string|max:255',
+                'specialization' => 'nullable|string|max:255',
+                'geographical_scope' => 'nullable|string|max:500',
+                'code' => 'nullable|string|max:50',
             ]);
 
             $user = User::create([
@@ -32,6 +36,10 @@ class AuthController extends Controller
                 'phone' => $request->phone,
                 'dob' => $request->dob,
                 'gender' => $request->gender,
+                'company_name' => $request->company_name,
+                'specialization' => $request->specialization,
+                'geographical_scope' => $request->geographical_scope,
+                'code' => $request->code,
                 'role_id' => 2, // Default role for normal user
             ]);
 
