@@ -23,6 +23,8 @@ class User extends Authenticatable
         'geographical_scope',
         'code',
         'role_id',
+        'status',
+
     ];
 
     protected $hidden = [
@@ -36,6 +38,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'dob' => 'date',
+            'status' => 'boolean',
+
         ];
     }
 
@@ -43,4 +47,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+
+    public function isAdmin(): bool
+{
+    return $this->role_id == 1;
+}
+
 }

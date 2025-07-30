@@ -19,9 +19,14 @@ use App\Http\Controllers\Api\Admin\Homepage\DayController;
 use App\Http\Controllers\Api\Admin\Homepage\EventScheduleController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\Api\Admin\HomePage\LandingPageController;
+use App\Http\Controllers\Api\Admin\Ticket\TicketPlanController;
 
 // 🟢 Public Auth APIs
-Route::post('/register', [AuthController::class, 'register']);
+// Route::post('/register', [AuthController::class, 'register']);
+
+Route::post('/register-company', [AuthController::class, 'registerCompany']);
+Route::post('/register-sponsorship', [AuthController::class, 'registerSponsorship']);
+
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -37,6 +42,8 @@ Route::get('/test-api', function () {
         'timestamp' => now(),
     ]);
 });
+
+Route::get('/ticket-plans', [TicketPlanController::class, 'index']);
 
 // 🟢 Public APIs
 Route::get('/banners', [BannerController::class, 'index']);
@@ -63,7 +70,7 @@ Route::get('/event-schedule/{id}', action: [EventScheduleController::class, 'sho
 Route::get('/home-video', [HomeVideoController::class, 'index']); // 🟢 Get active home video
 Route::get('/mission', [MissionController::class, 'index']);
 Route::get('/landing', [LandingPageController::class, 'index']);
-
+Route::get('/roles', [AuthController::class, 'getRoles']);
 
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
@@ -159,6 +166,16 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/landing', [LandingPageController::class, 'update']);
     Route::delete('/landing/{id}', [LandingPageController::class, 'destroy']);
 });
+
+    Route::get('/admin/companies', [AuthController::class, 'getCompanyUsers']);
+    Route::get('/admin/sponsorships', [AuthController::class, 'getSponsorshipUsers']);
+    Route::put('/admin/users/{userId}/status', [AuthController::class, 'updateUserStatus']);
+
+    // Route::get('/ticket-plans', [TicketPlanController::class, 'index']);
+    Route::get('/ticket-plans/{id}', [TicketPlanController::class, 'show']);
+    Route::post('/ticket-plans', [TicketPlanController::class, 'store']);
+    Route::put('/ticket-plans/{id}', [TicketPlanController::class, 'update']);
+    Route::delete('/ticket-plans/{id}', [TicketPlanController::class, 'destroy']);
 
 });
 
