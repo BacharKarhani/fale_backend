@@ -10,24 +10,21 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('booth_applications', function (Blueprint $table) {
+        Schema::create('booth_area_slots', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('area_id')->constrained('booth_areas')->onDelete('cascade');
-            $table->foreignId('slot_id')->constrained('booth_area_slots')->onDelete('cascade');
-            $table->enum('status', ['waiting', 'approved', 'declined'])->default('waiting');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
             $table->timestamps();
-
-            $table->unique(['area_id', 'slot_id']); // ❌ No one else can apply to same area+slot
         });
-    }
 
+    }
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('booth_applications');
+        Schema::dropIfExists('booth_area_slots');
     }
 };

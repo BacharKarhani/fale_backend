@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\Admin\About\MissionController;
 use App\Http\Controllers\Api\Admin\Homepage\TeamMemberController;
 use App\Http\Controllers\Api\BoothApplicationController;
 use App\Http\Controllers\Api\BoothAreaController;
+use App\Http\Controllers\Api\BoothAreaSlotController;
 use App\Http\Controllers\Api\SponsorBundleController;
 use App\Models\SponsorBundle;
 use Illuminate\Support\Facades\Route;
@@ -25,7 +26,6 @@ use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\Api\Admin\HomePage\LandingPageController;
 use App\Http\Controllers\Api\Admin\Ticket\TicketPlanController;
 use App\Http\Middleware\EnsureUserIsCompany;
-
 // 🟢 Public Auth APIs
 // Route::post('/register', [AuthController::class, 'register']);
 
@@ -77,19 +77,28 @@ Route::get('/mission', [MissionController::class, 'index']);
 Route::get('/landing', [LandingPageController::class, 'index']);
 Route::get('/roles', [AuthController::class, 'getRoles']);
 Route::get('/booth-areas', [BoothAreaController::class, 'index']);
+Route::get('/booth-area-slots', [BoothAreaSlotController::class, 'index']);
+    Route::get('/booth-applications', [BoothApplicationController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sponsor-bundles', [SponsorBundleController::class, 'index']);
     Route::post('/sponsor-bundles/apply/{id}', [SponsorBundleController::class, 'apply']);
 });
 
-Route::middleware(['auth:sanctum', EnsureUserIsCompany::class])
-    ->post('/booth-applications', [BoothApplicationController::class, 'store']);
-
-
-
+Route::middleware(['auth:sanctum', EnsureUserIsCompany::class])->group(function () {
+    Route::post('/booth-applications', [BoothApplicationController::class, 'store']);
+});
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
+    // Booth Areas
+    Route::post('/booth-areas', [BoothAreaController::class, 'store']);
+    Route::put('/booth-areas/{id}', [BoothAreaController::class, 'update']);
+    Route::delete('/booth-areas/{id}', [BoothAreaController::class, 'destroy']);
+
+    // Booth Area Slots
+    Route::post('/booth-area-slots', [BoothAreaSlotController::class, 'store']);
+    Route::put('/booth-area-slots/{id}', [BoothAreaSlotController::class, 'update']);
+    Route::delete('/booth-area-slots/{id}', [BoothAreaSlotController::class, 'destroy']);
 
     // 🔒 Banner APIs
     Route::post('/banners', [BannerController::class, 'store']);
@@ -200,6 +209,8 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::post('/admin/sponsor-bundles', [SponsorBundleController::class, 'store']);          // Create
     Route::put('/admin/sponsor-bundles/{id}', [SponsorBundleController::class, 'update']);     // Edit
     Route::delete('/admin/sponsor-bundles/{id}', [SponsorBundleController::class, 'destroy']); // Delete
+
+    Route::put('/booth-applications/{id}', [BoothApplicationController::class, 'update']);
 
 });
 

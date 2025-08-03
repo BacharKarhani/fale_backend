@@ -6,61 +6,58 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BoothApplication;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class BoothApplicationController extends Controller
 {
+    // Get all applications with relations
+    public function index()
+    {
+        return BoothApplication::with(['user', 'area', 'slot'])->get();
+    }
+
+    // Store new application (only company)
     public function store(Request $request)
     {
-        try {
-            $request->validate([
-                'area_id' => 'required|exists:booth_areas,id',
-            ]);
+        $request->validate([
+            'area_id' => 'required|exists:booth_areas,id',
+            'slot_id' => 'required|exists:booth_area_slots,id',
+        ]);
 
-            $user = Auth::user();
+        $user = Auth::user();
 
-            if (!$user) {
-                return response()->json([
-                    'message' => 'Unauthenticated: User not found'
-                ], 401);
-            }
-
-            // 🔍 Debug log
-            Log::info('AUTH USER:', [
-                'id' => $user->id,
-                'role' => $user->role
-            ]);
-
-            // ✅ Ensure role exists and is 'company'
-if (!$user->role || strtolower($user->role->name) !== 'company') {
-                return response()->json([
-                    'message' => 'Only users with the role Company can apply for booths.'
-                ], 403);
-            }
-
-            $exists = BoothApplication::where('user_id', $user->id)
-                ->where('area_id', $request->area_id)
-                ->exists();
-
-            if ($exists) {
-                return response()->json([
-                    'message' => 'You have already applied for this booth area.',
-                ], 400);
-            }
-
-            BoothApplication::create([
-                'user_id' => $user->id,
-                'area_id' => $request->area_id,
-                'status' => 'waiting',
-            ]);
-
-            return response()->json([
-                'message' => 'Application submitted successfully.',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Server Error: ' . $e->getMessage(),
-            ], 500);
+        if (!$user || strtolower($user->role->name) !== 'company') {
+            return response()->json(['message' => 'Only users with the role Company can apply for booths.'], 403);
         }
+
+        $alreadyApplied = BoothApplication::where('area_id', $request->area_id)
+            ->where('slot_id', $request->slot_id)
+            ->exists();
+
+        if ($alreadyApplied) {
+            return response()->json(['message' => 'This slot has already been reserved.'], 400);
+        }
+
+        $application = BoothApplication::create([
+            'user_id' => $user->id,
+            'area_id' => $request->area_id,
+            'slot_id' => $request->slot_id,
+            'status' => 'waiting',
+        ]);
+
+        return response()->json(['message' => 'Application submitted successfully', 'application' => $application], 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,declined,pending'
+        ]);
+
+        $application = BoothApplication::findOrFail($id);
+        $application->status = $request->status;
+        $application->save();
+
+        return response()->json(['message' => 'Status updated', 'application' => $application]);
+    }
+
 }
