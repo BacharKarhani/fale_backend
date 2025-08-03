@@ -156,16 +156,22 @@ class AuthController extends Controller
         }
     }
 
-    public function user(Request $request)
-    {
-        try {
-            $user = $request->user();
-            $user->load('role');
-            return response()->json($user, 200);
-        } catch (Exception $e) {
-            return response()->json(['message' => 'Could not fetch user details', 'error' => $e->getMessage()], 500);
-        }
+   public function user(Request $request)
+{
+    try {
+        $user = $request->user()->load('role');
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role->name ?? null,
+        ], 200);
+    } catch (Exception $e) {
+        return response()->json(['message' => 'Could not fetch user details', 'error' => $e->getMessage()], 500);
     }
+}
+
 
     public function getCompanyUsers(Request $request)
     {

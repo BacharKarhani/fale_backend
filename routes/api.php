@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\About\MissionController;
 use App\Http\Controllers\Api\Admin\Homepage\TeamMemberController;
+use App\Http\Controllers\Api\BoothApplicationController;
 use App\Http\Controllers\Api\BoothAreaController;
 use App\Http\Controllers\Api\SponsorBundleController;
 use App\Models\SponsorBundle;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Api\Admin\Homepage\EventScheduleController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\Api\Admin\HomePage\LandingPageController;
 use App\Http\Controllers\Api\Admin\Ticket\TicketPlanController;
+use App\Http\Middleware\EnsureUserIsCompany;
 
 // 🟢 Public Auth APIs
 // Route::post('/register', [AuthController::class, 'register']);
@@ -80,6 +82,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sponsor-bundles', [SponsorBundleController::class, 'index']);
     Route::post('/sponsor-bundles/apply/{id}', [SponsorBundleController::class, 'apply']);
 });
+
+Route::middleware(['auth:sanctum', EnsureUserIsCompany::class])
+    ->post('/booth-applications', [BoothApplicationController::class, 'store']);
+
+
 
 // 🔒 Protected APIs (Admins only)
 Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
