@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\About\MissionController;
 use App\Http\Controllers\Api\Admin\Homepage\TeamMemberController;
+use App\Http\Controllers\Api\BoothAreaController;
 use App\Http\Controllers\Api\SponsorBundleController;
 use App\Models\SponsorBundle;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +74,7 @@ Route::get('/home-video', [HomeVideoController::class, 'index']); // 🟢 Get ac
 Route::get('/mission', [MissionController::class, 'index']);
 Route::get('/landing', [LandingPageController::class, 'index']);
 Route::get('/roles', [AuthController::class, 'getRoles']);
+Route::get('/booth-areas', [BoothAreaController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sponsor-bundles', [SponsorBundleController::class, 'index']);
@@ -152,10 +154,10 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::get('/home-video/{id}', [HomeVideoController::class, 'show']);     // Get home video by ID
     Route::delete('/home-video/{id}', [HomeVideoController::class, 'destroy']); // Delete home video
 // 🔒 Mission APIs
-    Route::get('/admin/missions', [MissionController::class, 'getAll']);
-    Route::post('/admin/missions', [MissionController::class, 'store']);
-    Route::put('/admin/missions/{id}', [MissionController::class, 'update']);
-    Route::delete('/admin/missions/{id}', [MissionController::class, 'destroy']);
+    Route::get('/admin/mission/all', [MissionController::class, 'getAll']);
+    Route::post('/admin/mission', [MissionController::class, 'store']);
+    Route::put('/admin/mission/{id}', [MissionController::class, 'update']);
+    Route::delete('/admin/mission/{id}', [MissionController::class, 'destroy']);
 
     // 🔒 Event Schedule APIs
     Route::prefix('event-schedule')->group(function () {

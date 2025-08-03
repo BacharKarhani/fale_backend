@@ -24,13 +24,17 @@ class User extends Authenticatable
         'code',
         'role_id',
         'status',
-
+        'photo', // ✅ Add this line
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
+
+    protected $casts = [
+    'specialization' => 'array',
+];
 
     protected function casts(): array
     {
@@ -39,7 +43,6 @@ class User extends Authenticatable
             'password' => 'hashed',
             'dob' => 'date',
             'status' => 'boolean',
-
         ];
     }
 
@@ -49,8 +52,7 @@ class User extends Authenticatable
     }
 
     public function isAdmin(): bool
-{
-    return $this->role_id == 1;
-}
-
+    {
+        return $this->role_id == 1;
+    }
 }

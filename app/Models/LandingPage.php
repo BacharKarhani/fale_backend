@@ -19,6 +19,7 @@ class LandingPage extends Model
     ];
 
     protected $casts = [
+        'description' => 'array', // ✅ new line added
         'stats_enabled' => 'boolean',
         'exhibitors_count' => 'integer',
         'visitors_count' => 'integer',

@@ -58,10 +58,10 @@ class LandingPageController extends Controller
         try {
             $validated = $request->validate([
                 'title' => 'required|string',
-                'description' => 'required|string',
+                'description' => 'nullable|array',
                 'date_range' => 'nullable|string',
                 'image' => 'nullable|file|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-                
+
                 // Statistics section
                 'stats_section_title' => 'nullable|string|max:255',
                 'exhibitors_count' => 'nullable|integer|min:0',
@@ -70,16 +70,11 @@ class LandingPageController extends Controller
                 'stats_enabled' => 'nullable|boolean',
             ]);
 
+            // ✅ Automatically handled by model: 'description' cast as array → JSON
             // ✅ HANDLE IMAGE UPLOAD
             if ($request->hasFile('image')) {
-                $image = $request->file('image');
-
-                // Save to storage/app/public/landing
                 $path = $request->file('image')->store('landing', 'public');
-
-                // Save publicly accessible URL
                 $validated['image'] = Storage::url($path); // /storage/landing/filename.jpg
-
                 Log::info('Landing page image saved at', ['url' => $validated['image']]);
             } else {
                 Log::info('No image uploaded.');
