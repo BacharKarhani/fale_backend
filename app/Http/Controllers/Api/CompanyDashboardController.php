@@ -220,6 +220,8 @@ class CompanyDashboardController extends Controller
         'employee_id' => 'required|integer',
     ]);
 
+    
+
     $employeeId = $validated['employee_id'];
 
     // Find all applications for the logged-in company
