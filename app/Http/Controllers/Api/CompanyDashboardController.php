@@ -211,4 +211,37 @@ class CompanyDashboardController extends Controller
             'message' => 'Employee removed successfully.'
         ]);
     }
+    
+    public function checkEmployee(Request $request): JsonResponse
+{
+    $user = Auth::user();
+
+    $validated = $request->validate([
+        'employee_id' => 'required|integer',
+    ]);
+
+    $employeeId = $validated['employee_id'];
+
+    // Find all applications for the logged-in company
+    $applications = BoothApplication::with('employees')
+        ->where('user_id', $user->id)
+        ->get();
+
+    $exists = false;
+
+    // Loop through each application and its employees to check for the ID
+    foreach ($applications as $app) {
+        foreach ($app->employees as $emp) {
+            if ($emp->id == $employeeId) {
+                $exists = true;
+                break 2; // Exit both loops as soon as found
+            }
+        }
+    }
+
+    return response()->json([
+        'exists' => $exists,
+    ]);
+}
+
 }

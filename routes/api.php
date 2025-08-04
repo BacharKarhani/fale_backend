@@ -47,6 +47,8 @@ Route::middleware(['auth:sanctum', EnsureUserIsCompany::class])->group(function 
     Route::post('/company/applications/{id}/assign-ticket', [CompanyDashboardController::class, 'assignEmployee']);
     Route::put('/company/applications/{applicationId}/employees/{employeeId}', [CompanyDashboardController::class, 'updateEmployee']);
     Route::delete('/company/applications/{applicationId}/employees/{employeeId}', [CompanyDashboardController::class, 'removeEmployee']);
+    Route::post('/company/check-employee', [CompanyDashboardController::class, 'checkEmployee'])->middleware('auth:sanctum');
+
 });
 
 
