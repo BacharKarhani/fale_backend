@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BoothApplicationController;
 use App\Http\Controllers\Api\BoothAreaController;
 use App\Http\Controllers\Api\BoothAreaSlotController;
 use App\Http\Controllers\Api\SponsorBundleController;
+use App\Http\Controllers\Api\CompanyDashboardController;
 use App\Models\SponsorBundle;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
@@ -38,6 +39,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+Route::middleware(['auth:sanctum', EnsureUserIsCompany::class])->group(function () {
+    Route::get('/company/dashboard', [CompanyDashboardController::class, 'show']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::delete('/company/applications/{id}', [BoothApplicationController::class, 'cancel']);
+    Route::get('/company/applications/{id}', [CompanyDashboardController::class, 'applicationDetails']);
+    Route::post('/company/applications/{id}/assign-ticket', [CompanyDashboardController::class, 'assignEmployee']);
+    Route::put('/company/applications/{applicationId}/employees/{employeeId}', [CompanyDashboardController::class, 'updateEmployee']);
+    Route::delete('/company/applications/{applicationId}/employees/{employeeId}', [CompanyDashboardController::class, 'removeEmployee']);
+});
+
 
 // 🧪 Test API Endpoint
 Route::get('/test-api', function () {
@@ -78,7 +89,8 @@ Route::get('/landing', [LandingPageController::class, 'index']);
 Route::get('/roles', [AuthController::class, 'getRoles']);
 Route::get('/booth-areas', [BoothAreaController::class, 'index']);
 Route::get('/booth-area-slots', [BoothAreaSlotController::class, 'index']);
-    Route::get('/booth-applications', [BoothApplicationController::class, 'index']);
+Route::get('/booth-applications', [BoothApplicationController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/company/dashboard', [CompanyDashboardController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sponsor-bundles', [SponsorBundleController::class, 'index']);

@@ -30,4 +30,9 @@ class BoothApplication extends Model
     {
         return $this->belongsTo(BoothAreaSlot::class, 'slot_id');
     }
+    public function employees()
+{
+    return $this->hasMany(ApplicationEmployee::class, 'booth_application_id');
+}
+
 }

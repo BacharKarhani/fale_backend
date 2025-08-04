@@ -47,6 +47,24 @@ class BoothApplicationController extends Controller
         return response()->json(['message' => 'Application submitted successfully', 'application' => $application], 201);
     }
 
+    public function cancel($id)
+{
+    $user = Auth::user();
+    $application = BoothApplication::findOrFail($id);
+
+    // Only allow to cancel if this user's application and status is NOT approved
+    if (
+        $application->user_id !== $user->id ||
+        $application->status === 'approved'
+    ) {
+        return response()->json(['message' => 'You cannot cancel this application.'], 403);
+    }
+
+    $application->delete();
+
+    return response()->json(['message' => 'Application cancelled successfully.']);
+}
+
     public function update(Request $request, $id)
     {
         $request->validate([

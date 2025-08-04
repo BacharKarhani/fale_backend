@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+// use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class User extends Authenticatable
 {
@@ -55,4 +56,15 @@ class User extends Authenticatable
     {
         return $this->role_id == 1;
     }
+
+    public function boothApplications()
+{
+    return $this->hasMany(BoothApplication::class);
+}
+
+public function bundles()
+{
+    return $this->belongsToMany(\App\Models\Bundle::class)->withPivot('status')->withTimestamps();
+}
+
 }
