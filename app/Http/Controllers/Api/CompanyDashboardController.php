@@ -211,39 +211,52 @@ class CompanyDashboardController extends Controller
             'message' => 'Employee removed successfully.'
         ]);
     }
-    
+
     public function checkEmployee(Request $request): JsonResponse
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    $validated = $request->validate([
-        'employee_id' => 'required|integer',
-    ]);
+        $validated = $request->validate([
+            'employee_id' => 'required|integer',
+        ]);
 
-    
+        $employeeId = $validated['employee_id'];
 
-    $employeeId = $validated['employee_id'];
+        // Find all applications for the logged-in company with employees, area, and user (company)
+        $applications = \App\Models\BoothApplication::with(['employees', 'area', 'user'])
+            ->where('user_id', $user->id)
+            ->get();
 
-    // Find all applications for the logged-in company
-    $applications = BoothApplication::with('employees')
-        ->where('user_id', $user->id)
-        ->get();
+        $employeeData = null;
+        $companyData = null;
+        $areaData = null;
 
-    $exists = false;
-
-    // Loop through each application and its employees to check for the ID
-    foreach ($applications as $app) {
-        foreach ($app->employees as $emp) {
-            if ($emp->id == $employeeId) {
-                $exists = true;
-                break 2; // Exit both loops as soon as found
+        foreach ($applications as $app) {
+            foreach ($app->employees as $emp) {
+                if ($emp->id == $employeeId) {
+                    $employeeData = $emp;
+                    $companyData = $app->user; // الشركة المالكة للـ application
+                    $areaData = $app->area;    // المنطقة المرتبطة بنفس application
+                    break 2;
+                }
             }
         }
-    }
 
-    return response()->json([
-        'exists' => $exists,
-    ]);
-}
+        if ($employeeData) {
+            return response()->json([
+                'exists' => true,
+                'employee' => $employeeData,
+                'company' => $companyData,
+                'area' => $areaData,
+            ]);
+        } else {
+            return response()->json([
+                'exists' => false,
+                'employee' => null,
+                'company' => null,
+                'area' => null,
+            ]);
+        }
+    }
 
 }
