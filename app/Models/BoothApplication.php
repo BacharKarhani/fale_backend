@@ -35,4 +35,5 @@ class BoothApplication extends Model
     return $this->hasMany(ApplicationEmployee::class, 'booth_application_id');
 }
 
+
 }

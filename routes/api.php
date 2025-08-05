@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\About\MissionController;
+use App\Http\Controllers\Api\Admin\AdminCompaniesManagementController;
 use App\Http\Controllers\Api\Admin\Homepage\TeamMemberController;
 use App\Http\Controllers\Api\BoothApplicationController;
 use App\Http\Controllers\Api\BoothAreaController;
@@ -225,6 +226,15 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::delete('/admin/sponsor-bundles/{id}', [SponsorBundleController::class, 'destroy']); // Delete
 
     Route::put('/booth-applications/{id}', [BoothApplicationController::class, 'update']);
+
+
+    Route::get('/admin/companies', [AdminCompaniesManagementController::class, 'index']);
+    Route::put('/admin/users/{id}/status', [AdminCompaniesManagementController::class, 'toggleStatus']);
+    Route::get('/admin/companies/{id}/tickets', [AdminCompaniesManagementController::class, 'tickets']);
+    Route::get('/admin/booth-applications/{id}/check', [AdminCompaniesManagementController::class, 'checkBoothApplication']);
+    Route::get('/admin/companies/{id}/employees-with-tickets', [AdminCompaniesManagementController::class, 'employeesWithTickets']);
+    Route::post('/admin/check-employee', [AdminCompaniesManagementController::class, 'checkEmployeeAdmin']);
+
 
 });
 
