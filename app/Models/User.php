@@ -52,10 +52,17 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function isAdmin(): bool
-    {
-        return $this->role_id == 1;
-    }
+ // In App\Models\User
+public function isAdmin(): bool
+{
+    // works with either role name or role_id
+    $roleName = strtolower($this->role->name ?? '');
+    $roleId   = (int) ($this->role_id ?? 0);
+
+    return in_array($roleName, ['admin', 'subadmin'], true)
+        || in_array($roleId, [1, 5], true); // adjust IDs if yours differ
+}
+
 
     public function boothApplications()
 {

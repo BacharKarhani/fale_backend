@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\About\MissionController;
 use App\Http\Controllers\Api\Admin\AdminCompaniesManagementController;
 use App\Http\Controllers\Api\Admin\Homepage\TeamMemberController;
+use App\Http\Controllers\Api\AdminEmployeeController;
 use App\Http\Controllers\Api\BoothApplicationController;
 use App\Http\Controllers\Api\BoothAreaController;
 use App\Http\Controllers\Api\BoothAreaSlotController;
@@ -235,6 +236,14 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     Route::get('/admin/companies/{id}/employees-with-tickets', [AdminCompaniesManagementController::class, 'employeesWithTickets']);
     Route::post('/admin/check-employee', [AdminCompaniesManagementController::class, 'checkEmployeeAdmin']);
 
+    Route::get   ('/admin-employees',            [AdminEmployeeController::class, 'index']);
+    Route::post  ('/admin-employees',            [AdminEmployeeController::class, 'store']);
+    Route::get   ('/admin-employees/{id}',       [AdminEmployeeController::class, 'show']);
+    Route::put   ('/admin-employees/{id}',       [AdminEmployeeController::class, 'update']);
+    Route::delete('/admin-employees/{id}',       [AdminEmployeeController::class, 'destroy']);
+
+    // check by employee_id (simple lookup)
+    Route::post  ('/admin-employees/check',      [AdminEmployeeController::class, 'check']);
 
 });
 

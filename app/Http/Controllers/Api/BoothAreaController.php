@@ -63,11 +63,22 @@ class BoothAreaController extends Controller
         return response()->json(['message' => 'Booth area deleted']);
     }
 
-    private function authorizeAdmin()
-    {
-        $user = Auth::user()->loadMissing('role');
-        if (!$user || strtolower($user->role->name) !== 'admin') {
-            abort(403, 'Unauthorized. Admin access required.');
-        }
+  private function authorizeAdmin(): void
+{
+    $user = Auth::user()->loadMissing('role');
+    if (!$user) {
+        abort(401, 'Unauthenticated.');
     }
+
+    $roleName = strtolower($user->role->name ?? '');
+    $roleId   = (int)($user->role_id ?? 0);
+
+    $allowed = in_array($roleName, ['admin', 'subadmin'], true)
+        || in_array($roleId, [1, 5], true);
+
+    if (!$allowed) {
+        abort(403, 'Unauthorized. Admin/SubAdmin access required.');
+    }
+}
+
 }

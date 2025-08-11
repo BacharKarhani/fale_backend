@@ -26,7 +26,7 @@ class EmployeeQRAssigned extends Mailable
         // Absolute path to file in storage
         $absoluteQrPath = storage_path('app/public/qr_employees/employee_' . $this->employee->id . '.png');
 
-        return $this->subject('Your Employee QR Code')
+        return $this->subject('Your Visitor QR Code')
             ->markdown('emails.employee.assigned')
             ->attach($absoluteQrPath, [
                 'as' => 'qr_code.png',
