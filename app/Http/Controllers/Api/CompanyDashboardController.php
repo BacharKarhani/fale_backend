@@ -23,7 +23,7 @@ class CompanyDashboardController extends Controller
         $user = Auth::user();
 
         $applications = $user->boothApplications()
-            ->with(['area', 'slot'])
+            ->with(['area']) // ⬅️ أزلنا slot
             ->get()
             ->map(function ($app) {
                 $app->ticket_number = $app->area->ticket_number ?? null;
@@ -39,7 +39,8 @@ class CompanyDashboardController extends Controller
     public function applicationDetails($id): JsonResponse
     {
         $user = Auth::user();
-        $application = BoothApplication::with(['area', 'slot', 'employees'])
+
+        $application = BoothApplication::with(['area', 'employees']) // ⬅️ أزلنا slot
             ->where('user_id', $user->id)
             ->findOrFail($id);
 
@@ -47,17 +48,18 @@ class CompanyDashboardController extends Controller
         $createdTickets = $application->employees->count();
 
         return response()->json([
-            'application' => $application,
-            'max_tickets' => $maxTickets,
+            'application'     => $application,
+            'max_tickets'     => $maxTickets,
             'created_tickets' => $createdTickets,
-            'employees' => $application->employees,
+            'employees'       => $application->employees,
         ]);
     }
 
     public function assignEmployee(Request $request, $id): JsonResponse
     {
         $user = Auth::user();
-        $application = BoothApplication::with(['area', 'employees'])
+
+        $application = BoothApplication::with(['area', 'employees']) // ⬅️ أزلنا slot
             ->where('user_id', $user->id)
             ->findOrFail($id);
 
@@ -70,17 +72,17 @@ class CompanyDashboardController extends Controller
 
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'nullable|email|max:255',
-                'gender' => 'nullable|string|in:male,female,other',
-                'dob' => 'nullable|date',
-                'phone_number' => 'nullable|string|max:30',
+                'name'          => 'required|string|max:255',
+                'email'         => 'nullable|email|max:255',
+                'gender'        => 'nullable|string|in:male,female,other',
+                'dob'           => 'nullable|date',
+                'phone_number'  => 'nullable|string|max:30',
             ]);
         } catch (ValidationException $e) {
             $messages = collect($e->errors())->flatten()->implode("\n");
             return response()->json([
                 'message' => $messages,
-                'errors' => $e->errors(),
+                'errors'  => $e->errors(),
             ], 422);
         }
 
@@ -88,19 +90,18 @@ class CompanyDashboardController extends Controller
 
         // Generate QR
         $data = [
-            'id' => $employee->id,
+            'id'                   => $employee->id,
             'booth_application_id' => $employee->booth_application_id,
-            'name' => $employee->name,
-            'email' => $employee->email,
-            'gender' => $employee->gender,
-            'dob' => $employee->dob,
-            'phone_number' => $employee->phone_number,
-            'created_at' => $employee->created_at->toDateTimeString(),
-            'updated_at' => $employee->updated_at->toDateTimeString(),
+            'name'                 => $employee->name,
+            'email'                => $employee->email,
+            'gender'               => $employee->gender,
+            'dob'                  => $employee->dob,
+            'phone_number'         => $employee->phone_number,
+            'created_at'           => $employee->created_at->toDateTimeString(),
+            'updated_at'           => $employee->updated_at->toDateTimeString(),
         ];
 
         $jsonData = json_encode($data);
-
         $qr = new QrCode($jsonData);
         $writer = new PngWriter();
         $result = $writer->write($qr);
@@ -118,7 +119,7 @@ class CompanyDashboardController extends Controller
         }
 
         return response()->json([
-            'message' => 'Employee assigned successfully.',
+            'message'  => 'Employee assigned successfully.',
             'employee' => $employee
         ]);
     }
@@ -126,7 +127,8 @@ class CompanyDashboardController extends Controller
     public function updateEmployee(Request $request, $applicationId, $employeeId): JsonResponse
     {
         $user = Auth::user();
-        $application = BoothApplication::with(['area', 'employees'])
+
+        $application = BoothApplication::with(['area', 'employees']) // ⬅️ أزلنا slot
             ->where('user_id', $user->id)
             ->findOrFail($applicationId);
 
@@ -134,37 +136,36 @@ class CompanyDashboardController extends Controller
 
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'nullable|email|max:255',
-                'gender' => 'nullable|string|in:male,female,other',
-                'dob' => 'nullable|date',
-                'phone_number' => 'nullable|string|max:30',
+                'name'          => 'required|string|max:255',
+                'email'         => 'nullable|email|max:255',
+                'gender'        => 'nullable|string|in:male,female,other',
+                'dob'           => 'nullable|date',
+                'phone_number'  => 'nullable|string|max:30',
             ]);
         } catch (ValidationException $e) {
             $messages = collect($e->errors())->flatten()->implode("\n");
             return response()->json([
                 'message' => $messages,
-                'errors' => $e->errors(),
+                'errors'  => $e->errors(),
             ], 422);
         }
 
         $employee->update($validated);
 
-        // Regenerate QR code
+        // Regenerate QR
         $data = [
-            'id' => $employee->id,
+            'id'                   => $employee->id,
             'booth_application_id' => $employee->booth_application_id,
-            'name' => $employee->name,
-            'email' => $employee->email,
-            'gender' => $employee->gender,
-            'dob' => $employee->dob,
-            'phone_number' => $employee->phone_number,
-            'created_at' => $employee->created_at->toDateTimeString(),
-            'updated_at' => $employee->updated_at->toDateTimeString(),
+            'name'                 => $employee->name,
+            'email'                => $employee->email,
+            'gender'               => $employee->gender,
+            'dob'                  => $employee->dob,
+            'phone_number'         => $employee->phone_number,
+            'created_at'           => $employee->created_at->toDateTimeString(),
+            'updated_at'           => $employee->updated_at->toDateTimeString(),
         ];
 
         $jsonData = json_encode($data);
-
         $qr = new QrCode($jsonData);
         $writer = new PngWriter();
         $result = $writer->write($qr);
@@ -182,7 +183,7 @@ class CompanyDashboardController extends Controller
         }
 
         return response()->json([
-            'message' => 'Employee updated successfully.',
+            'message'  => 'Employee updated successfully.',
             'employee' => $employee
         ]);
     }
@@ -190,14 +191,15 @@ class CompanyDashboardController extends Controller
     public function removeEmployee($applicationId, $employeeId): JsonResponse
     {
         $user = Auth::user();
-        $application = BoothApplication::with(['area', 'employees'])
+
+        $application = BoothApplication::with(['area', 'employees']) // ⬅️ أزلنا slot
             ->where('user_id', $user->id)
             ->findOrFail($applicationId);
 
         $employee = $application->employees()->findOrFail($employeeId);
         $email = $employee->email;
-        $name = $employee->name;
-        $applicationData = $application; // For email template if needed
+        $name  = $employee->name;
+        $applicationData = $application;
 
         $employee->delete();
 
@@ -222,21 +224,21 @@ class CompanyDashboardController extends Controller
 
         $employeeId = $validated['employee_id'];
 
-        // Find all applications for the logged-in company with employees, area, and user (company)
-        $applications = \App\Models\BoothApplication::with(['employees', 'area', 'user'])
+        // Applications for this company with employees + area + user (no slot)
+        $applications = BoothApplication::with(['employees', 'area', 'user'])
             ->where('user_id', $user->id)
             ->get();
 
         $employeeData = null;
-        $companyData = null;
-        $areaData = null;
+        $companyData  = null;
+        $areaData     = null;
 
         foreach ($applications as $app) {
             foreach ($app->employees as $emp) {
-                if ($emp->id == $employeeId) {
+                if ((int)$emp->id === (int)$employeeId) {
                     $employeeData = $emp;
-                    $companyData = $app->user; // الشركة المالكة للـ application
-                    $areaData = $app->area;    // المنطقة المرتبطة بنفس application
+                    $companyData  = $app->user;
+                    $areaData     = $app->area;
                     break 2;
                 }
             }
@@ -244,19 +246,18 @@ class CompanyDashboardController extends Controller
 
         if ($employeeData) {
             return response()->json([
-                'exists' => true,
+                'exists'   => true,
                 'employee' => $employeeData,
-                'company' => $companyData,
-                'area' => $areaData,
-            ]);
-        } else {
-            return response()->json([
-                'exists' => false,
-                'employee' => null,
-                'company' => null,
-                'area' => null,
+                'company'  => $companyData,
+                'area'     => $areaData,
             ]);
         }
-    }
 
+        return response()->json([
+            'exists'   => false,
+            'employee' => null,
+            'company'  => null,
+            'area'     => null,
+        ]);
+    }
 }

@@ -12,30 +12,33 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            // Check if user is authenticated (token present & valid)
             if (!auth()->check()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized. No token provided or token is invalid.'
-                ], 401); // 401 Unauthorized
+                    'message' => 'Unauthorized. No token provided or token is invalid.',
+                ], 401);
             }
 
-            // Check if user is admin
-            if (auth()->user()->role_id != 1) {
+            $user = auth()->user();
+
+            $roleName = strtolower($user->role->name ?? '');
+            $allowedByName = in_array($roleName, ['admin', 'subadmin'], true);
+
+            $allowedById = in_array((int)$user->role_id, [1, 5], true);
+
+            if (!($allowedByName || $allowedById)) {  
                 return response()->json([
                     'success' => false,
-                    'message' => 'Forbidden. Admins only.'
-                ], 403); // 403 Forbidden
+                    'message' => 'Forbidden. Admins only.',
+                ], 403);
             }
 
-            // Pass request to next middleware/controller
             return $next($request);
-
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Server error in IsAdmin middleware.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

@@ -12,8 +12,7 @@ class BoothApplication extends Model
     protected $fillable = [
         'user_id',
         'area_id',
-        'slot_id',
-        'status',
+        'status', // approved | declined | waiting
     ];
 
     public function user()
@@ -26,14 +25,8 @@ class BoothApplication extends Model
         return $this->belongsTo(BoothArea::class, 'area_id');
     }
 
-    public function slot()
-    {
-        return $this->belongsTo(BoothAreaSlot::class, 'slot_id');
-    }
     public function employees()
-{
-    return $this->hasMany(ApplicationEmployee::class, 'booth_application_id');
-}
-
-
+    {
+        return $this->hasMany(ApplicationEmployee::class, 'booth_application_id');
+    }
 }
