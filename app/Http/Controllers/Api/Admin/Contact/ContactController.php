@@ -13,53 +13,52 @@ class ContactController extends Controller
     /**
      * 🔓 Public API: Get Contact Information
      */
-public function getContactInfo()
-{
-    $contact = ContactSetting::first();
+    public function getContactInfo()
+    {
+        $contact = ContactSetting::first();
 
-    if (!$contact) {
+        if (!$contact) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Contact information not found.'
+            ], 404);
+        }
+
         return response()->json([
-            'success' => false,
-            'message' => 'Contact information not found.'
-        ], 404);
+            'success' => true,
+            'data' => [
+                'location' => $contact->location,
+                'emails' => json_decode($contact->emails),
+                'phones' => json_decode($contact->phones),
+                'services' => json_decode($contact->services),
+                'is_shown' => $contact->is_shown,
+            ]
+        ]);
     }
 
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'location' => $contact->location,
-            'emails' => json_decode($contact->emails),
-            'phones' => json_decode($contact->phones),
-            'services' => json_decode($contact->services),
-            'is_shown' => $contact->is_shown, // <-- Add this line
-        ]
-    ]);
-}
+    public function getAdminContactInfo()
+    {
+        $contact = ContactSetting::first();
 
-public function getAdminContactInfo()
-{
-    $contact = ContactSetting::first();
+        if (!$contact) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Contact information not found.'
+            ], 404);
+        }
 
-    if (!$contact) {
         return response()->json([
-            'success' => false,
-            'message' => 'Contact information not found.'
-        ], 404);
+            'success' => true,
+            'data' => [
+                'id' => $contact->id,
+                'location' => $contact->location,
+                'emails' => json_decode($contact->emails),
+                'phones' => json_decode($contact->phones),
+                'services' => json_decode($contact->services),
+                'is_shown' => $contact->is_shown,
+            ]
+        ]);
     }
-
-    return response()->json([
-        'success' => true,
-        'data' => [
-            'id' => $contact->id,
-            'location' => $contact->location,
-            'emails' => json_decode($contact->emails),
-            'phones' => json_decode($contact->phones),
-            'services' => json_decode($contact->services),
-            'is_shown' => $contact->is_shown,
-        ]
-    ]);
-}
-
 
     /**
      * 🔓 Public API: Save Contact Form Submission
@@ -74,12 +73,16 @@ public function getAdminContactInfo()
             'message' => 'required|string'
         ]);
 
-        // Send email to your desired address
-        $toEmail = 'Info@lafeleb.com'; // <-- Change to your desired email
+        // ✅ الإيميل المستلم يجي من env أو config
+        $toEmail = config('mail.contact_to', env('CONTACT_TO_EMAIL', 'info@lafeleb.com'));
 
         Mail::raw(
-            "Name: {$validated['name']}\nEmail: {$validated['email']}\nPhone: {$validated['phone']}\nService: {$validated['service']}\nMessage: {$validated['message']}",
-            function ($message) use ($toEmail, $validated) {
+            "Name: {$validated['name']}\n".
+            "Email: {$validated['email']}\n".
+            "Phone: {$validated['phone']}\n".
+            "Service: {$validated['service']}\n".
+            "Message: {$validated['message']}",
+            function ($message) use ($toEmail) {
                 $message->to($toEmail)
                         ->subject('New Contact Form Submission');
             }

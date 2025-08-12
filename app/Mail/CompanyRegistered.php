@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SponsorshipRegistered extends Mailable
+class CompanyRegistered extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -26,7 +26,7 @@ class SponsorshipRegistered extends Mailable
      */
     public function build()
     {
-        return $this->subject('New Sponsorship Registration (Pending Approval)')
-                    ->view('emails.sponsorship_registered');
+        return $this->subject('New Company Registration (Pending Approval)')
+                    ->view('emails.company_registered');
     }
 }

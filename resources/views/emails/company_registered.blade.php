@@ -2,10 +2,10 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>New Sponsorship Registration</title>
+    <title>New Company Registration</title>
 </head>
 <body>
-    <h2>New Sponsorship Registration (Pending Approval)</h2>
+    <h2>New Company Registration (Pending Approval)</h2>
 
     <p><strong>Name:</strong> {{ $user->name }}</p>
     <p><strong>Email:</strong> {{ $user->email }}</p>

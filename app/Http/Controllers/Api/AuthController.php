@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SponsorshipRegistered;
+use App\Mail\CompanyRegistered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -65,6 +66,15 @@ class AuthController extends Controller
                 'photo' => $photoPath,
             ]);
 
+            // ✅ أرسل إيميل إشعار لتسجيل شركة جديدة إلى الإيميل المحدّد في .env
+            try {
+                $toEmail = config('mail.contact_to', env('CONTACT_TO_EMAIL', 'info@lafeleb.com'));
+                Mail::to($toEmail)->send(new CompanyRegistered($user));
+            } catch (Exception $mailEx) {
+                // ما نوقف التسجيل إذا الإيميل فشل، بس منسجّل اللوج
+                logger()->error('Company registration mail failed: '.$mailEx->getMessage());
+            }
+
             return response()->json(['message' => 'Company registered successfully. Pending approval.'], 201);
         } catch (Exception $e) {
             return response()->json(['message' => 'Server error', 'error' => $e->getMessage()], 500);
@@ -104,7 +114,13 @@ class AuthController extends Controller
                 'photo' => $photoPath,
             ]);
 
-            Mail::to('info@lafeleb.com')->send(new SponsorshipRegistered($user));
+            // ✅ إشعار تسجيل رعايات (موجود أصلاً)
+            try {
+                $toEmail = config('mail.contact_to', env('CONTACT_TO_EMAIL', 'info@lafeleb.com'));
+                Mail::to($toEmail)->send(new SponsorshipRegistered($user));
+            } catch (Exception $mailEx) {
+                logger()->error('Sponsorship registration mail failed: '.$mailEx->getMessage());
+            }
 
             return response()->json(['message' => 'Sponsorship registered successfully. Pending approval.'], 201);
         } catch (Exception $e) {
@@ -156,24 +172,21 @@ class AuthController extends Controller
         }
     }
 
-   public function user(Request $request)
-{
-    try {
-        $user = $request->user()->load('role');
+    public function user(Request $request)
+    {
+        try {
+            $user = $request->user()->load('role');
 
-        return response()->json([
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role->name ?? null,
-        ], 200);
-    } catch (Exception $e) {
-        return response()->json(['message' => 'Could not fetch user details', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role->name ?? null,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Could not fetch user details', 'error' => $e->getMessage()], 500);
+        }
     }
-}
-
-
-
 
     public function getCompanyUsers(Request $request)
     {
