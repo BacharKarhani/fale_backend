@@ -4,7 +4,7 @@
 # 🎉 Welcome, <span style="color:#1976d2;">{{ $employee->name }}</span>!
 
 Congratulations!  
-You have been assigned as an <b>employee</b> for booth application  
+You have been assigned as an <b>visitor</b> for booth application  
 <span style="background:#e3f4ff; color:#1976d2; padding:2px 10px; border-radius:8px;">#{{ $application->id }}</span>.
 
 ---

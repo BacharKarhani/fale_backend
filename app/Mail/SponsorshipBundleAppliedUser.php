@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -13,10 +12,8 @@ class SponsorshipBundleAppliedUser extends Mailable
 {
     use Queueable, SerializesModels;
 
-    /**
-     * Create a new message instance.
-     */
-    public $user, $bundle;
+    public $user;
+    public $bundle;
 
     public function __construct($user, $bundle)
     {
@@ -24,32 +21,24 @@ class SponsorshipBundleAppliedUser extends Mailable
         $this->bundle = $bundle;
     }
 
-
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Sponsorship Bundle Applied User',
+            subject: 'Thanks for Applying — Sponsorship Bundle'
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.sponsorship.applied-user',
+            with: [
+                'user'   => $this->user,
+                'bundle' => $this->bundle,
+            ]
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
     public function attachments(): array
     {
         return [];
