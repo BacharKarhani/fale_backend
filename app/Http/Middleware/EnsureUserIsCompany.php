@@ -22,10 +22,13 @@ class EnsureUserIsCompany
         // Make sure role relationship is loaded
         $user->loadMissing('role');
 
-        if (!$user->role || strtolower($user->role->name) !== 'company') {
+        if (
+            !$user->role ||
+            !in_array(strtolower($user->role->name), ['company', 'sponsorship'])
+        ) {
             return response()->json([
                 'success' => false,
-                'message' => 'Only users with the role Company can apply for booths.'
+                'message' => 'Only users with the role Company or Sponsorship can apply for Areas.'
             ], 403);
         }
 

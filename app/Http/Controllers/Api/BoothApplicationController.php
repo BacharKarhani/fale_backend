@@ -32,9 +32,12 @@ class BoothApplicationController extends Controller
 
         $user = Auth::user();
 
-        if (!$user || strtolower($user->role->name) !== 'company') {
+        if (
+            !$user->role ||
+            !in_array(strtolower($user->role->name), ['company', 'sponsorship'])
+        ) {
             return response()->json([
-                'message' => 'Only users with the role Company can apply for booths.'
+                'message' => 'Only users with the role Company or Sponsorship can apply for Areas.'
             ], 403);
         }
 
@@ -64,11 +67,11 @@ class BoothApplicationController extends Controller
             'user_id' => $user->id,
             'area_id' => $request->area_id,
             // ما بقا في slot_id
-            'status'  => 'waiting',
+            'status' => 'waiting',
         ]);
 
         return response()->json([
-            'message'     => 'Application submitted successfully',
+            'message' => 'Application submitted successfully',
             'application' => $application,
         ], 201);
     }
@@ -125,7 +128,7 @@ class BoothApplicationController extends Controller
         $application->save();
 
         return response()->json([
-            'message'     => 'Status updated',
+            'message' => 'Status updated',
             'application' => $application,
         ]);
     }
