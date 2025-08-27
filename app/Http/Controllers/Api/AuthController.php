@@ -227,31 +227,42 @@ class AuthController extends Controller
     }
 
     public function updateUserStatus(Request $request, $userId)
-    {
-        try {
-            if (!$request->user()->isAdmin()) {
-                return response()->json(['message' => 'Unauthorized. Admin access required.'], 403);
-            }
-
-            $request->validate([
-                'status' => 'required|boolean'
-            ]);
-
-            $user = User::with('role')->findOrFail($userId);
-
-            if (!in_array($user->role_id, [3, 4])) {
-                return response()->json(['message' => 'Can only update status for Company or Sponsorship users'], 400);
-            }
-
-            $user->status = $request->status;
-            $user->save();
-
-            return response()->json([
-                'message' => 'User status updated successfully',
-                'user' => $user
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json(['message' => 'Could not update user status', 'error' => $e->getMessage()], 500);
+{
+    try {
+        if (!$request->user()->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized. Admin access required.'], 403);
         }
+
+        $request->validate([
+            'status' => 'required|boolean'
+        ]);
+
+        $user = User::with('role')->findOrFail($userId);
+
+        if (!in_array($user->role_id, [3, 4])) {
+            return response()->json(['message' => 'Can only update status for Company or Sponsorship users'], 400);
+        }
+
+        $user->status = $request->boolean('status');
+        $user->save();
+
+        // ✅ أرسل إيميل بس عند الموافقة
+        if ($user->status === true) {
+            try {
+                \Mail::to($user->email)->send(new \App\Mail\UserApprovalStatus($user, true));
+            } catch (\Throwable $mailEx) {
+                \Log::error('Approval email failed: '.$mailEx->getMessage());
+                // منكمّل الرد حتى لو الإيميل فشل
+            }
+        }
+
+        return response()->json([
+            'message' => 'User status updated successfully',
+            'user' => $user
+        ], 200);
+    } catch (Exception $e) {
+        return response()->json(['message' => 'Could not update user status', 'error' => $e->getMessage()], 500);
     }
+}
+
 }
