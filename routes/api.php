@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\About\MissionController;
 use App\Http\Controllers\Api\Admin\AdminCompaniesManagementController;
+use App\Http\Controllers\Api\Admin\CompanyLogoController;
 use App\Http\Controllers\Api\Admin\Homepage\TeamMemberController;
 use App\Http\Controllers\Api\AdminEmployeeController;
 use App\Http\Controllers\Api\BoothApplicationController;
@@ -244,6 +245,7 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
 
     // check by employee_id (simple lookup)
     Route::post  ('/admin-employees/check',      [AdminEmployeeController::class, 'check']);
+Route::get('/admin/companies/{user}/logo-download', [CompanyLogoController::class, 'download']);
 
 });
 
