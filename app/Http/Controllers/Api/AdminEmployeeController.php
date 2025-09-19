@@ -13,6 +13,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;                 // 👈 NEW
 use App\Mail\AdminEmployeeQRAssigned;               // 👈 NEW
+use App\Models\VisitorScan;
 
 class AdminEmployeeController extends Controller
 {
@@ -147,6 +148,21 @@ class AdminEmployeeController extends Controller
         ]);
 
         $emp = AdminEmployee::find($validated['employee_id']);
+
+        if ($emp) {
+            // Log the scan for visitor counting
+            VisitorScan::create([
+                'scanner_id' => Auth::id(),
+                'scanner_type' => 'admin',
+                'employee_id' => $emp->id,
+                'employee_type' => 'admin_employee',
+                'scanner_name' => Auth::user()->name,
+                'scanner_company' => 'Admin',
+                'employee_name' => $emp->name,
+                'employee_company' => $emp->company ?? 'LafeLeb',
+                'scan_time' => now(),
+            ]);
+        }
 
         return response()->json([
             'exists'   => (bool) $emp,

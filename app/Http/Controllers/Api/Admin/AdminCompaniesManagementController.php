@@ -8,6 +8,8 @@ use Illuminate\Http\JsonResponse;
 use App\Models\User;
 use App\Models\BoothApplication;
 use App\Models\ApplicationEmployee;
+use App\Models\VisitorScan;
+use Illuminate\Support\Facades\Auth;
 
 class AdminCompaniesManagementController extends Controller
 {
@@ -107,6 +109,19 @@ class AdminCompaniesManagementController extends Controller
         }
 
         if ($employee) {
+            // Log the scan for visitor counting
+            VisitorScan::create([
+                'scanner_id' => Auth::id(),
+                'scanner_type' => 'admin',
+                'employee_id' => $employee->id,
+                'employee_type' => 'application_employee',
+                'scanner_name' => Auth::user()->name,
+                'scanner_company' => 'Admin',
+                'employee_name' => $employee->name,
+                'employee_company' => $company->company_name ?? 'Unknown',
+                'scan_time' => now(),
+            ]);
+
             return response()->json([
                 'exists'      => true,
                 'employee'    => $employee,

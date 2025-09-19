@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\EmployeeQRAssigned;
 use App\Mail\EmployeeQRUpdated;
 use App\Mail\EmployeeQRRemoved;
+use App\Models\VisitorScan;
 
 class CompanyDashboardController extends Controller
 {
@@ -245,6 +246,19 @@ class CompanyDashboardController extends Controller
         }
 
         if ($employeeData) {
+            // Log the scan for visitor counting
+            VisitorScan::create([
+                'scanner_id' => $user->id,
+                'scanner_type' => 'company',
+                'employee_id' => $employeeData->id,
+                'employee_type' => 'application_employee',
+                'scanner_name' => $user->name,
+                'scanner_company' => $user->company_name,
+                'employee_name' => $employeeData->name,
+                'employee_company' => $companyData->company_name,
+                'scan_time' => now(),
+            ]);
+
             return response()->json([
                 'exists'   => true,
                 'employee' => $employeeData,

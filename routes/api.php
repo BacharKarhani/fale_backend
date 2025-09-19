@@ -3,7 +3,7 @@
 use App\Http\Controllers\Api\Admin\About\MissionController;
 use App\Http\Controllers\Api\Admin\AdminCompaniesManagementController;
 use App\Http\Controllers\Api\Admin\CompanyLogoController;
-use App\Http\Controllers\Api\Admin\Homepage\TeamMemberController;
+use App\Http\Controllers\Api\Admin\HomePage\TeamMemberController;
 use App\Http\Controllers\Api\AdminEmployeeController;
 use App\Http\Controllers\Api\BoothApplicationController;
 use App\Http\Controllers\Api\BoothAreaController;
@@ -24,12 +24,13 @@ use App\Http\Controllers\Api\Admin\Homepage\BlogController;
 use App\Http\Controllers\Api\Admin\FAQ\FaqController;
 use App\Http\Controllers\Api\Admin\Contact\ContactController;
 use App\Http\Controllers\Api\Admin\Subscription\SubscriptionController;
-use App\Http\Controllers\Api\Admin\Homepage\DayController;
-use App\Http\Controllers\Api\Admin\Homepage\EventScheduleController;
+use App\Http\Controllers\Api\Admin\HomePage\DayController;
+use App\Http\Controllers\Api\Admin\HomePage\EventScheduleController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\Api\Admin\HomePage\LandingPageController;
 use App\Http\Controllers\Api\Admin\Ticket\TicketPlanController;
 use App\Http\Middleware\EnsureUserIsCompany;
+use App\Http\Controllers\Api\VisitorScanController;
 // 🟢 Public Auth APIs
 // Route::post('/register', [AuthController::class, 'register']);
 
@@ -51,6 +52,13 @@ Route::middleware(['auth:sanctum', EnsureUserIsCompany::class])->group(function 
     Route::put('/company/applications/{applicationId}/employees/{employeeId}', [CompanyDashboardController::class, 'updateEmployee']);
     Route::delete('/company/applications/{applicationId}/employees/{employeeId}', [CompanyDashboardController::class, 'removeEmployee']);
     Route::post('/company/check-employee', [CompanyDashboardController::class, 'checkEmployee'])->middleware('auth:sanctum');
+
+    // Visitor scanning routes for companies
+    Route::post('/company/scan-qr', [VisitorScanController::class, 'scanQr']);
+    Route::get('/company/visitor-count', [VisitorScanController::class, 'getCompanyDailyCount']);
+    Route::get('/company/visitor-count-only', [VisitorScanController::class, 'getCompanyDailyCountOnly']);
+    Route::get('/company/recent-scans', [VisitorScanController::class, 'getCompanyRecentScans']);
+    Route::post('/company/check-employee-qr', [VisitorScanController::class, 'checkEmployee']);
 
 });
 
@@ -246,6 +254,14 @@ Route::middleware(['auth:sanctum', IsAdmin::class])->group(function () {
     // check by employee_id (simple lookup)
     Route::post  ('/admin-employees/check',      [AdminEmployeeController::class, 'check']);
 Route::get('/admin/companies/{user}/logo-download', [CompanyLogoController::class, 'download']);
+
+    // Visitor scanning routes for admins
+    Route::post('/admin/scan-qr', [VisitorScanController::class, 'scanQr']);
+    Route::get('/admin/visitor-count', [VisitorScanController::class, 'getDailyCount']);
+    Route::get('/admin/visitor-count-only', [VisitorScanController::class, 'getDailyCountOnly']);
+    Route::get('/admin/visitor-statistics', [VisitorScanController::class, 'getStatistics']);
+    Route::get('/admin/recent-scans', [VisitorScanController::class, 'getRecentScans']);
+    Route::post('/admin/check-employee-qr', [VisitorScanController::class, 'checkEmployee']);
 
 });
 
